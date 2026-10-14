@@ -52,7 +52,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col justify-between relative overflow-hidden px-4 py-8">
+    <div className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col justify-between relative overflow-hidden px-3.5 sm:px-4 py-6 sm:py-8">
       {/* Subtle clinical grid & radial glow backdrop */}
       <div
         aria-hidden="true"
@@ -65,25 +65,25 @@ export default function LoginPage() {
       />
 
       {/* Top minimal telemetry status bar */}
-      <header className="relative z-10 max-w-md w-full mx-auto flex items-center justify-between text-xs font-mono-tabular text-[var(--text-muted)]">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>TELEMETRY GATEWAY · ENCRYPTED</span>
+      <header className="relative z-10 max-w-md w-full mx-auto flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs font-mono-tabular text-[var(--text-muted)]">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="truncate">TELEMETRY GATEWAY · ENCRYPTED</span>
         </div>
-        <span className="px-2 py-0.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">
+        <span className="px-2 py-0.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[10px] uppercase tracking-wider text-[var(--text-secondary)] shrink-0">
           HMAC-SHA256
         </span>
       </header>
 
       {/* Main Unlock Card */}
-      <main className="relative z-10 w-full max-w-md mx-auto my-auto py-8">
-        <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)]/95 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shadow-inner">
+      <main className="relative z-10 w-full max-w-md mx-auto my-auto py-6 sm:py-8">
+        <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)]/95 backdrop-blur-xl p-5 sm:p-8 shadow-2xl">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 mb-5 sm:mb-6">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shadow-inner shrink-0">
               <Activity className="w-5 h-5 text-sky-400" />
             </div>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/12 text-amber-300 border border-amber-500/30">
-              <Lock className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/12 text-amber-300 border border-amber-500/30">
+              <Lock className="w-3 h-3 shrink-0" />
               Protected Health Record
             </span>
           </div>
@@ -123,7 +123,7 @@ export default function LoginPage() {
                     if (errorMessage) setErrorMessage(null);
                   }}
                   placeholder="Enter passphrase..."
-                  className="w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-canvas)] pl-10 pr-10 py-2.5 text-sm font-mono-tabular text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-400 focus:outline-none transition-colors"
+                  className="w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-canvas)] pl-10 pr-10 py-2.5 text-base sm:text-sm font-mono-tabular text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-400 focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
@@ -162,9 +162,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2 text-[11px] text-[var(--text-muted)] font-mono-tabular">
+          <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-muted)] font-mono-tabular">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               HttpOnly Signed Session
             </span>
             <span>30-Day Expiry</span>

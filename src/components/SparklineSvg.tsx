@@ -8,12 +8,14 @@ interface SparklineSvgProps {
   marker: Biomarker;
   width?: number;
   height?: number;
+  className?: string;
 }
 
 export default function SparklineSvg({
   marker,
   width = 132,
   height = 38,
+  className = '',
 }: SparklineSvgProps) {
   const { values, min, max } = marker;
   const validPoints = values
@@ -97,7 +99,7 @@ export default function SparklineSvg({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className="overflow-visible select-none"
+      className={`overflow-visible select-none shrink-0 ${className}`.trim()}
       aria-label={`Trend sparkline for ${marker.name}`}
     >
       {hasRefBand && bandY2 > bandY1 && (

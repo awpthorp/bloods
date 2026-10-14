@@ -329,11 +329,13 @@ function SystemCardChart({
   biomarkers,
   dates,
   onSelectBiomarker,
+  className = '',
 }: {
   chart: SystemChartDefinition;
   biomarkers: Biomarker[];
   dates: string[];
   onSelectBiomarker: (marker: Biomarker) => void;
+  className?: string;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [hiddenSeries, setHiddenSeries] = useState<Record<string, boolean>>({});
@@ -426,17 +428,21 @@ function SystemCardChart({
   };
 
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 flex flex-col justify-between transition-colors hover:border-[var(--border-strong)] relative">
+    <div
+      className={`rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between transition-colors hover:border-[var(--border-strong)] relative min-w-0 ${className}`.trim()}
+    >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-3 overflow-hidden">
-        <div>
+      <div className="flex items-start justify-between gap-2.5 sm:gap-3 mb-2.5 sm:mb-3 overflow-hidden">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-sky-400 shrink-0" />
-            <h3 className="font-semibold text-sm text-[var(--text-primary)] tracking-tight">
+            <h3 className="font-semibold text-sm text-[var(--text-primary)] tracking-tight truncate">
               {chart.title}
             </h3>
           </div>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">{chart.subtitle}</p>
+          <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
+            {chart.subtitle}
+          </p>
         </div>
 
         {/* Quick inspect first biomarker */}
@@ -447,7 +453,7 @@ function SystemCardChart({
               const m = markerMap.get(chart.series[0].biomarkerName);
               if (m) onSelectBiomarker(m);
             }}
-            className="text-xs text-[var(--text-secondary)] hover:text-sky-400 p-1.5 rounded-lg border border-transparent hover:border-[var(--border-subtle)] transition-colors"
+            className="text-xs text-[var(--text-secondary)] hover:text-sky-400 p-1.5 rounded-lg border border-transparent hover:border-[var(--border-subtle)] transition-colors shrink-0"
             title={`Inspect ${chart.series[0].biomarkerName}`}
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -463,12 +469,12 @@ function SystemCardChart({
           return (
             <div
               key={s.biomarkerName}
-              className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[11px] overflow-hidden"
+              className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[10.5px] sm:text-[11px] overflow-hidden max-w-full"
             >
               <button
                 type="button"
                 onClick={() => toggleSeries(s.biomarkerName)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 transition-opacity ${
+                className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 transition-opacity min-w-0 ${
                   isHidden ? 'opacity-40 line-through' : 'opacity-100'
                 }`}
                 title="Click to toggle series visibility"
@@ -477,9 +483,11 @@ function SystemCardChart({
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: s.color }}
                 />
-                <span className="font-medium text-[var(--text-primary)]">{s.label}</span>
+                <span className="font-medium text-[var(--text-primary)] truncate">
+                  {s.label}
+                </span>
                 {s.axis === 'right' && (
-                  <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)]">
+                  <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] shrink-0">
                     (R)
                   </span>
                 )}
@@ -488,7 +496,7 @@ function SystemCardChart({
                 <button
                   type="button"
                   onClick={() => onSelectBiomarker(m)}
-                  className="px-1.5 py-1 text-[var(--text-muted)] hover:text-sky-400 border-l border-[var(--border-subtle)] transition-colors"
+                  className="px-1.5 py-1 text-[var(--text-muted)] hover:text-sky-400 border-l border-[var(--border-subtle)] transition-colors shrink-0"
                   title={`Open detailed telemetry modal for ${s.biomarkerName}`}
                 >
                   ↗
@@ -725,14 +733,23 @@ function SystemCardChart({
 
         {/* Permanent Fixed-Height Telemetry Readout Strip */}
         <div
-          className={`mt-2 h-12 rounded-xl border px-3 py-1.5 flex flex-col justify-between overflow-hidden transition-colors ${
+          className={`mt-2 h-[68px] sm:h-12 rounded-xl border px-2.5 sm:px-3 py-1.5 flex flex-col justify-between overflow-hidden transition-colors ${
             isInspecting
               ? 'border-sky-500/40 bg-[var(--bg-elevated)]'
               : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60'
           }`}
         >
           <div className="flex items-center justify-between gap-2 leading-none overflow-hidden whitespace-nowrap">
-            <div className="inline-flex items-center gap-1.5 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (isInspecting) setHoverIdx(null);
+              }}
+              className={`inline-flex items-center gap-1.5 min-w-0 text-left ${
+                isInspecting ? 'cursor-pointer' : 'cursor-default'
+              }`}
+              title={isInspecting ? 'Tap to reset to latest panel' : undefined}
+            >
               <span
                 className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                   isInspecting ? 'bg-sky-400' : 'bg-emerald-400/75'
@@ -744,21 +761,16 @@ function SystemCardChart({
                 }`}
               >
                 {isInspecting
-                  ? `INSPECTING · ${dates[activeIdx] ?? '—'}`
+                  ? `INSPECTING · ${dates[activeIdx] ?? '—'} ✕`
                   : `LATEST · ${dates[activeIdx] ?? '—'}`}
               </span>
-            </div>
+            </button>
             <span className="font-mono-tabular text-[9.5px] text-[var(--text-muted)] shrink-0">
               Panel {activeIdx + 1}/{dates.length}
             </span>
           </div>
 
-          <div
-            className="grid gap-2 items-center leading-none overflow-hidden whitespace-nowrap"
-            style={{
-              gridTemplateColumns: `repeat(${Math.max(activeSeries.length, 1)}, minmax(0, 1fr))`,
-            }}
-          >
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2.5 gap-y-1 sm:gap-2 leading-none overflow-hidden">
             {activeSeries.map((s) => {
               const m = markerMap.get(s.biomarkerName);
               const val = m?.values[activeIdx] ?? null;
@@ -775,16 +787,16 @@ function SystemCardChart({
               return (
                 <div
                   key={s.biomarkerName}
-                  className="flex items-center gap-1 min-w-0 overflow-hidden whitespace-nowrap"
+                  className="inline-flex items-center gap-1 min-w-0 overflow-hidden whitespace-nowrap"
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full shrink-0"
                     style={{ backgroundColor: s.color }}
                   />
-                  <span className="text-[10px] text-[var(--text-secondary)] truncate">
+                  <span className="text-[9.5px] sm:text-[10px] text-[var(--text-secondary)] truncate max-w-[78px] sm:max-w-none">
                     {s.label}:
                   </span>
-                  <span className="font-mono-tabular text-[11px] font-semibold text-[var(--text-primary)] shrink-0">
+                  <span className="font-mono-tabular text-[10.5px] sm:text-[11px] font-semibold text-[var(--text-primary)] shrink-0">
                     {formatNumber(val)}
                   </span>
                   {val !== null && val !== undefined && status !== 'unknown' && (
@@ -815,23 +827,30 @@ export default function SystemsChartsGrid({
           <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-sky-400">
             Multi-System Telemetry
           </span>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+          <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] tracking-tight">
             Physiological System Trajectories (2021–2025)
           </h2>
         </div>
         <p className="text-xs text-[var(--text-secondary)]">
-          Hover any panel date to compare biomarkers · Click series tags to toggle or ↗ to inspect
+          Tap or hover any panel date to compare biomarkers · Click series tags to toggle or ↗ to inspect
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {SYSTEM_CHARTS.map((chart) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 grid-flow-dense gap-4">
+        {SYSTEM_CHARTS.map((chart, idx) => (
           <SystemCardChart
             key={chart.id}
             chart={chart}
             biomarkers={biomarkers}
             dates={dates}
             onSelectBiomarker={onSelectBiomarker}
+            className={
+              idx === 0
+                ? 'md:col-span-2 xl:col-span-2'
+                : idx === 1
+                ? 'xl:col-span-2'
+                : ''
+            }
           />
         ))}
       </div>

@@ -179,7 +179,7 @@ export default function DashboardClient({
     }
   };
 
-  // Jump to a biomarker row in the table, clearing any active hiding filters first!
+  // Jump to a biomarker row or mobile card, clearing any active hiding filters first!
   const jumpToBiomarker = (biomarkerName: string, openModal = false) => {
     if (openModal) {
       setActiveModalMarkerName(biomarkerName);
@@ -194,9 +194,15 @@ export default function DashboardClient({
     setHighlightedSlug(slug);
 
     setTimeout(() => {
-      const rowEl = document.getElementById(`row-${slug}`);
-      if (rowEl) {
-        rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const desktopEl = document.getElementById(slug);
+      const mobileEl = document.getElementById(`mobile-${slug}`);
+      const targetEl =
+        (mobileEl && mobileEl.offsetParent !== null ? mobileEl : null) ??
+        (desktopEl && desktopEl.offsetParent !== null ? desktopEl : null) ??
+        mobileEl ??
+        desktopEl;
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 60);
 
@@ -428,42 +434,49 @@ export default function DashboardClient({
     <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-20">
       {/* Top Sticky Telemetry Header */}
       <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-glass)] backdrop-blur-xl">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-inner">
-              <Activity className="w-5 h-5 text-sky-400" />
+        <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-inner">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
             </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text-primary)]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h1 className="text-sm sm:text-xl font-bold tracking-tight text-[var(--text-primary)] truncate">
                   Biomarker &amp; Longevity Telemetry
                 </h1>
-                <span className="text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="hidden sm:inline-flex text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                   Male · Mid-30s
                 </span>
-                <span className="text-[11px] font-mono-tabular px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
-                  {dates.length} Panels ({dates[0]} – {dates[dates.length - 1]})
+                <span className="text-[10px] sm:text-[11px] font-mono-tabular px-2 sm:px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] shrink-0">
+                  {dates.length} Panels
+                  <span className="hidden sm:inline">
+                    {' '}
+                    ({dates[0]} – {dates[dates.length - 1]})
+                  </span>
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+              <p className="hidden md:block text-xs text-[var(--text-secondary)] mt-0.5">
                 {biomarkers.length} clinical biomarkers across 7 physiological systems · Polarity-aware delta engine
               </p>
             </div>
           </div>
 
           {/* Right Header Controls */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar sm:flex-wrap">
             <button
               type="button"
               onClick={() => setShowAuditDrawer((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold transition-all ${
                 showAuditDrawer
                   ? 'border-sky-400 bg-sky-500/15 text-sky-300'
                   : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <ShieldCheck className="w-4 h-4 text-sky-400" />
-              <span>Data Audit Log</span>
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 shrink-0" />
+              <span>
+                <span className="hidden sm:inline">Data </span>Audit
+                <span className="hidden sm:inline"> Log</span>
+              </span>
               <span className="font-mono-tabular px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 text-[10px]">
                 {dataAuditLog.length}
               </span>
@@ -472,10 +485,12 @@ export default function DashboardClient({
             <button
               type="button"
               onClick={() => setIsAddPanelOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-sky-500 px-3.5 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400 transition-colors shadow-sm shadow-sky-500/20"
+              className="shrink-0 inline-flex items-center gap-1 sm:gap-1.5 rounded-xl bg-sky-500 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400 transition-colors shadow-sm shadow-sky-500/20"
             >
-              <Plus className="w-4 h-4" />
-              <span>Add Lab Panel</span>
+              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span>
+                Add<span className="hidden sm:inline"> Lab</span> Panel
+              </span>
             </button>
 
             {customPanels.length > 0 && (
@@ -483,27 +498,31 @@ export default function DashboardClient({
                 type="button"
                 onClick={handleResetCustomPanels}
                 title="Remove custom local panels and restore 5 baseline panels"
-                className="inline-flex items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20"
+                className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Custom ({customPanels.length})</span>
+                <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Reset<span className="hidden sm:inline"> Custom</span> ({customPanels.length})
+                </span>
               </button>
             )}
 
             <button
               type="button"
               onClick={handleExportCsv}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)] hover:border-sky-400 transition-colors"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--text-primary)] hover:border-sky-400 transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-sky-400" />
-              <span>Export CSV</span>
+              <Download className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <span>
+                <span className="hidden sm:inline">Export </span>CSV
+              </span>
             </button>
 
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="shrink-0 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-1.5 sm:p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
             >
               {theme === 'dark' ? (
@@ -518,26 +537,28 @@ export default function DashboardClient({
               onClick={handleLockSession}
               disabled={isLocking}
               title="Lock telemetry session and require password"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-rose-400/50 hover:text-rose-300 transition-colors disabled:opacity-50"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-rose-400/50 hover:text-rose-300 transition-colors disabled:opacity-50"
             >
-              <Lock className="w-3.5 h-3.5" />
-              <span>{isLocking ? 'Locking...' : 'Lock'}</span>
+              <Lock className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">
+                {isLocking ? 'Locking...' : 'Lock'}
+              </span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-8">
+      <main className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 pt-5 sm:pt-6 space-y-6 sm:space-y-8">
         {/* Collapsible Verified Data Audit Log Drawer */}
         {showAuditDrawer && (
-          <section className="rounded-2xl border border-sky-500/30 bg-sky-500/5 p-5 shadow-lg">
+          <section className="rounded-2xl border border-sky-500/30 bg-sky-500/5 p-4 sm:p-5 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <div>
                 <div className="flex items-center gap-2 text-sky-400 text-xs font-mono-tabular uppercase tracking-wider">
-                  <ShieldCheck className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
                   Historical Data Integrity &amp; Unit Audit
                 </div>
-                <h2 className="text-base font-semibold text-[var(--text-primary)] mt-0.5">
+                <h2 className="text-sm sm:text-base font-semibold text-[var(--text-primary)] mt-0.5">
                   {dataAuditLog.length} Verified Corrections Applied to Legacy Dataset
                 </h2>
               </div>
@@ -558,18 +579,24 @@ export default function DashboardClient({
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {dataAuditLog.map((entry) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 grid-flow-dense gap-3">
+              {dataAuditLog.map((entry, idx) => (
                 <div
                   key={`${entry.biomarker}-${entry.date}`}
                   onClick={() => jumpToBiomarker(entry.biomarker)}
-                  className="cursor-pointer rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 hover:border-sky-400/50 transition-all"
+                  className={`cursor-pointer rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 hover:border-sky-400/50 transition-all ${
+                    idx === 0
+                      ? 'md:col-span-2 xl:col-span-2'
+                      : idx === 1
+                      ? 'xl:col-span-2'
+                      : ''
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="font-semibold text-xs text-[var(--text-primary)]">
                       {entry.biomarker}
                     </span>
-                    <span className="font-mono-tabular text-[10px] px-2 py-0.5 rounded bg-sky-500/15 text-sky-300">
+                    <span className="font-mono-tabular text-[10px] px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 shrink-0">
                       {entry.date}
                     </span>
                   </div>
@@ -594,20 +621,20 @@ export default function DashboardClient({
         {/* Dynamic Clinical Brief (3 Cards) */}
         <section
           aria-label="Clinical Telemetry Brief"
-          className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4"
         >
           {/* Card 1: Out of Range / Action Required */}
-          <div className="rounded-2xl border border-rose-500/30 bg-[var(--bg-surface)] p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="rounded-2xl border border-rose-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
             <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-rose-400">
-                    Out of Range · Latest Panel ({dates[dates.length - 1]})
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-rose-400 truncate">
+                    Out of Range · Latest ({dates[dates.length - 1]})
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 shrink-0">
                   {clinicalBrief.actionable.length} Markers
                 </span>
               </div>
@@ -621,9 +648,9 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, false)}
-                      className="text-left flex-1"
+                      className="text-left flex-1 min-w-0"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-rose-300 transition-colors">
                           {item.marker.name}
                         </span>
@@ -644,7 +671,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -656,17 +683,17 @@ export default function DashboardClient({
           </div>
 
           {/* Card 2: Borderline & Watchlist */}
-          <div className="rounded-2xl border border-amber-500/30 bg-[var(--bg-surface)] p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="rounded-2xl border border-amber-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
             <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <Activity className="w-4 h-4 text-amber-400 shrink-0" />
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-amber-400">
-                    Borderline &amp; Historical Watchlist
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-400 truncate">
+                    Borderline &amp; Watchlist
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0">
                   {clinicalBrief.watchlist.length} Markers
                 </span>
               </div>
@@ -680,7 +707,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, false)}
-                      className="text-left flex-1"
+                      className="text-left flex-1 min-w-0"
                     >
                       <div className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-amber-300 transition-colors">
                         {item.marker.name}
@@ -692,7 +719,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -704,17 +731,17 @@ export default function DashboardClient({
           </div>
 
           {/* Card 3: Positive Physiological Trajectories */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-[var(--bg-surface)] p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="rounded-2xl border border-emerald-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
             <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-emerald-400">
-                    Favorable Trajectories &amp; Rebounds
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 truncate">
+                    Favorable Trajectories
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
                   {statusCounts.normal}/{statusCounts.total} In Range
                 </span>
               </div>
@@ -728,9 +755,9 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, false)}
-                      className="text-left flex-1"
+                      className="text-left flex-1 min-w-0"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-emerald-300 transition-colors">
                           {item.marker.name}
                         </span>
@@ -745,7 +772,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -759,7 +786,7 @@ export default function DashboardClient({
 
         {/* 6 Headline KPI Telemetry Cards */}
         <section aria-label="Headline Biomarker KPIs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5">
             {KPI_HEADLINE_NAMES.map((name) => {
               const marker = markerByName.get(name);
               if (!marker) return null;
@@ -781,15 +808,15 @@ export default function DashboardClient({
                 <div
                   key={marker.name}
                   onClick={() => setActiveModalMarkerName(marker.name)}
-                  className="cursor-pointer group rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 hover:border-sky-400/50 transition-all flex flex-col justify-between"
+                  className="cursor-pointer group rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 sm:p-4 hover:border-sky-400/50 transition-all flex flex-col justify-between min-w-0"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] truncate">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-[11px] sm:text-xs font-semibold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] truncate">
                         {marker.name.replace(/\s*\([^)]*\)/, '')}
                       </span>
                       <span
-                        className={`text-[10px] font-mono-tabular uppercase px-2 py-0.5 rounded-full font-semibold ${
+                        className={`text-[9.5px] sm:text-[10px] font-mono-tabular uppercase px-1.5 sm:px-2 py-0.5 rounded-full font-semibold shrink-0 ${
                           status === 'normal'
                             ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                             : status === 'high'
@@ -802,20 +829,20 @@ export default function DashboardClient({
                     </div>
 
                     {/* Value display: fixes % of Range unit collision! */}
-                    <div className="mt-2.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-bold font-mono-tabular text-[var(--text-primary)]">
+                    <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1 sm:gap-1.5 min-w-0">
+                      <span className="text-xl sm:text-2xl font-bold font-mono-tabular text-[var(--text-primary)] truncate">
                         {formattedVal}
                       </span>
-                      <span className="text-xs font-mono-tabular text-[var(--text-muted)]">
+                      <span className="text-[10px] sm:text-xs font-mono-tabular text-[var(--text-muted)] shrink-0">
                         {displayMode === 'percent' ? 'of ref' : marker.unit}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
+                  <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-1 text-[10.5px] sm:text-xs">
                     {/* Delta vs prior: fixes double sign bug! */}
                     <span
-                      className={`inline-flex items-center gap-1 font-mono-tabular font-semibold ${
+                      className={`inline-flex items-center gap-0.5 sm:gap-1 font-mono-tabular font-semibold ${
                         changeEval.direction === 'improving'
                           ? 'text-emerald-400'
                           : changeEval.direction === 'worsening'
@@ -825,14 +852,17 @@ export default function DashboardClient({
                     >
                       {changeEval.percentChange !== null &&
                         (changeEval.percentChange > 0 ? (
-                          <ArrowUpRight className="w-3.5 h-3.5" />
+                          <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                         ) : changeEval.percentChange < 0 ? (
-                          <ArrowDownRight className="w-3.5 h-3.5" />
+                          <ArrowDownRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                         ) : null)}
-                      {formatSignedPercent(changeEval.percentChange)} vs prior
+                      <span>
+                        {formatSignedPercent(changeEval.percentChange)}
+                        <span className="hidden sm:inline"> vs prior</span>
+                      </span>
                     </span>
 
-                    <span className="text-[11px] font-mono-tabular text-[var(--text-muted)]">
+                    <span className="text-[10px] sm:text-[11px] font-mono-tabular text-[var(--text-muted)] truncate">
                       Ref: {marker.refLabel}
                     </span>
                   </div>
@@ -856,14 +886,14 @@ export default function DashboardClient({
               <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-sky-400">
                 Complete Assay Matrix
               </span>
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+              <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] tracking-tight">
                 Longitudinal Biomarker Ledger ({filteredBiomarkers.length} of{' '}
                 {biomarkers.length})
               </h2>
             </div>
 
             {/* Value Display Mode Toggle & Audited Filter */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setOnlyAudited((prev) => !prev)}
@@ -873,7 +903,7 @@ export default function DashboardClient({
                     : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                 <span>Audited Fixes Only (7)</span>
               </button>
 
@@ -885,7 +915,7 @@ export default function DashboardClient({
                 <button
                   type="button"
                   onClick={() => setDisplayMode('absolute')}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                     displayMode === 'absolute'
                       ? 'bg-sky-500 text-slate-950 shadow-sm'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -896,7 +926,7 @@ export default function DashboardClient({
                 <button
                   type="button"
                   onClick={() => setDisplayMode('percent')}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                     displayMode === 'percent'
                       ? 'bg-sky-500 text-slate-950 shadow-sm'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -909,13 +939,13 @@ export default function DashboardClient({
           </div>
 
           {/* Filter Bar: Categories + Status + Search */}
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 space-y-3.5">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 sm:p-4 space-y-3 sm:space-y-3.5">
             {/* Category Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap -mx-1 px-1 pb-0.5 sm:flex-wrap sm:overflow-visible sm:mx-0 sm:px-0">
               <button
                 type="button"
                 onClick={() => setSelectedCategory('all')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   selectedCategory === 'all'
                     ? 'bg-sky-500 text-slate-950 shadow-sm'
                     : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
@@ -943,7 +973,7 @@ export default function DashboardClient({
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                       isActive
                         ? 'bg-sky-500 text-slate-950 shadow-sm'
                         : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
@@ -965,9 +995,9 @@ export default function DashboardClient({
             </div>
 
             {/* Second Row: Clinical Status Filter Pills + Search Box */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] mr-1">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-[var(--border-subtle)]">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap -mx-1 px-1 pb-0.5 sm:flex-wrap sm:overflow-visible sm:mx-0 sm:px-0">
+                <span className="shrink-0 inline-flex items-center gap-1 text-xs text-[var(--text-muted)] mr-1">
                   <Filter className="w-3.5 h-3.5" /> Status:
                 </span>
                 {(
@@ -1005,7 +1035,7 @@ export default function DashboardClient({
                       key={tab.id}
                       type="button"
                       onClick={() => setStatusFilter(tab.id)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
+                      className={`shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
                         isActive
                           ? 'bg-[var(--text-primary)] text-[var(--bg-canvas)] font-semibold'
                           : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
@@ -1029,7 +1059,7 @@ export default function DashboardClient({
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search biomarker (e.g. eGFR, Apo, B12)..."
                   aria-label="Search biomarker by name"
-                  className="w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-canvas)] pl-9 pr-8 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-400 focus:outline-none"
+                  className="w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-canvas)] pl-9 pr-8 py-2 sm:py-1.5 text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-400 focus:outline-none"
                 />
                 {searchTerm && (
                   <button
@@ -1044,8 +1074,235 @@ export default function DashboardClient({
             </div>
           </div>
 
-          {/* Data Table */}
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] overflow-hidden shadow-xl">
+          {/* Dedicated Mobile Biomarker Card List (< md) */}
+          <div className="md:hidden space-y-2.5">
+            {filteredBiomarkers.length === 0 ? (
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-10 px-4 text-center text-sm text-[var(--text-muted)]">
+                No biomarkers match your current filters.{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setStatusFilter('all');
+                    setSearchTerm('');
+                    setOnlyAudited(false);
+                  }}
+                  className="text-sky-400 underline ml-1"
+                >
+                  Reset all filters
+                </button>
+              </div>
+            ) : (
+              filteredBiomarkers.map((marker) => {
+                const slug = slugify(marker.name);
+                const isCardHighlighted = highlightedSlug === slug;
+                const latest = getLatestReading(marker.values, dates);
+                const previous = getPreviousReading(marker.values, dates);
+                const baseline = getBaselineReading(marker.values, dates);
+
+                const latestStatus = getStatus(latest.value, marker);
+                const priorEval = evaluateChange(
+                  latest.value,
+                  previous.value,
+                  marker
+                );
+                const baselineEval = evaluateChange(
+                  latest.value,
+                  baseline.value,
+                  marker
+                );
+                const rangePos = getRangePosition(latest.value, marker);
+                const hasAuditNotes =
+                  marker.auditNotes &&
+                  Object.keys(marker.auditNotes).length > 0;
+
+                return (
+                  <div
+                    key={marker.name}
+                    id={`mobile-${slug}`}
+                    onClick={() => setActiveModalMarkerName(marker.name)}
+                    className={`rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 shadow-sm active:border-sky-400/60 transition-colors cursor-pointer scroll-mt-36 space-y-2.5 ${
+                      isCardHighlighted ? 'card-pulse-highlight' : ''
+                    }`}
+                  >
+                    {/* 1. Header row: Biomarker name + Category + Audited/Derived + Status pill */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-[var(--text-primary)] flex flex-wrap items-center gap-1.5">
+                          <span>{marker.name}</span>
+                          {hasAuditNotes && (
+                            <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30">
+                              Audited
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10.5px] text-[var(--text-muted)] font-mono-tabular mt-0.5">
+                          {categoryLabels[marker.category]}
+                          {marker.isDerived ? ' · Derived' : ''}
+                          {marker.refLabel !== 'N/A'
+                            ? ` · Ref: ${marker.refLabel} ${marker.unit}`
+                            : ''}
+                        </div>
+                      </div>
+
+                      <span
+                        className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono-tabular font-semibold uppercase tracking-wider ${
+                          latestStatus === 'normal'
+                            ? 'bg-[var(--status-normal-bg)] text-[var(--status-normal-text)] border border-[var(--status-normal-border)]'
+                            : latestStatus === 'high'
+                            ? 'bg-[var(--status-high-bg)] text-[var(--status-high-text)] border border-[var(--status-high-border)]'
+                            : latestStatus === 'low'
+                            ? 'bg-[var(--status-low-bg)] text-[var(--status-low-text)] border border-[var(--status-low-border)]'
+                            : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
+                        }`}
+                      >
+                        {latestStatus === 'unknown' ? 'No Ref' : latestStatus}
+                      </span>
+                    </div>
+
+                    {/* 2. Metrics + Sparkline row */}
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex flex-wrap items-baseline gap-1.5">
+                          <span className="font-mono-tabular text-lg font-bold text-[var(--text-primary)]">
+                            {formatDisplayValue(
+                              latest.value,
+                              marker,
+                              displayMode
+                            )}
+                          </span>
+                          <span className="text-[11px] font-mono-tabular text-[var(--text-muted)]">
+                            {displayMode === 'percent' ? 'of ref' : marker.unit}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10.5px] font-mono-tabular">
+                          {priorEval.percentChange !== null && (
+                            <span
+                              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded font-semibold ${
+                                priorEval.direction === 'improving'
+                                  ? 'bg-emerald-500/12 text-emerald-400'
+                                  : priorEval.direction === 'worsening'
+                                  ? 'bg-rose-500/12 text-rose-400'
+                                  : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                              }`}
+                            >
+                              {priorEval.direction === 'improving' && (
+                                <TrendingUp className="w-2.5 h-2.5" />
+                              )}
+                              {priorEval.direction === 'worsening' && (
+                                <TrendingDown className="w-2.5 h-2.5" />
+                              )}
+                              {formatSignedPercent(priorEval.percentChange)} vs prior
+                            </span>
+                          )}
+                          {baselineEval.percentChange !== null && (
+                            <span className="text-[var(--text-muted)]">
+                              Total:{' '}
+                              <span
+                                className={`font-semibold ${
+                                  baselineEval.direction === 'improving'
+                                    ? 'text-emerald-400'
+                                    : baselineEval.direction === 'worsening'
+                                    ? 'text-rose-400'
+                                    : 'text-[var(--text-secondary)]'
+                                }`}
+                              >
+                                {formatSignedPercent(baselineEval.percentChange)}
+                              </span>
+                            </span>
+                          )}
+                        </div>
+
+                        {rangePos !== null && (
+                          <div
+                            className="w-28 h-1.5 rounded-full bg-[var(--bg-subtle)] overflow-hidden relative"
+                            title={`${Math.round(rangePos)}% of reference range`}
+                          >
+                            <div
+                              className={`h-full rounded-full ${
+                                latestStatus === 'high'
+                                  ? 'bg-rose-400'
+                                  : latestStatus === 'low'
+                                  ? 'bg-amber-400'
+                                  : 'bg-emerald-400'
+                              }`}
+                              style={{
+                                width: `${Math.max(
+                                  6,
+                                  Math.min(100, rangePos)
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <SparklineSvg marker={marker} width={114} height={36} />
+                    </div>
+
+                    {/* 3. Historical timeline strip (zero horizontal scroll for 5 panels) */}
+                    <div
+                      className={
+                        dates.length <= 5
+                          ? 'grid grid-cols-5 gap-1 pt-2 border-t border-[var(--border-subtle)]'
+                          : 'grid grid-flow-col auto-cols-fr gap-1 overflow-x-auto no-scrollbar pt-2 border-t border-[var(--border-subtle)]'
+                      }
+                    >
+                      {dates.map((d, idx) => {
+                        const val = marker.values[idx];
+                        const cellStatus = getStatus(val, marker);
+                        const cellAudit = marker.auditNotes?.[d];
+                        const shortDate = d.replace('20', '');
+
+                        return (
+                          <div
+                            key={d}
+                            className="rounded-lg bg-[var(--bg-elevated)]/70 border border-[var(--border-subtle)] px-1 py-1 text-center min-w-0"
+                          >
+                            <div className="text-[9px] font-mono-tabular text-[var(--text-muted)] truncate">
+                              {shortDate}
+                            </div>
+                            <div className="mt-0.5 font-mono-tabular text-[10.5px] font-semibold truncate flex items-center justify-center gap-0.5">
+                              {val === null || val === undefined ? (
+                                <span className="text-[var(--text-muted)] opacity-45">
+                                  —
+                                </span>
+                              ) : (
+                                <>
+                                  <span
+                                    className={
+                                      cellStatus === 'high'
+                                        ? 'text-[var(--status-high-text)]'
+                                        : cellStatus === 'low'
+                                        ? 'text-[var(--status-low-text)]'
+                                        : 'text-[var(--text-primary)]'
+                                    }
+                                  >
+                                    {formatDisplayValue(
+                                      val,
+                                      marker,
+                                      displayMode
+                                    )}
+                                  </span>
+                                  {cellAudit && (
+                                    <span className="w-1 h-1 rounded-full bg-sky-400 shrink-0" />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop / Tablet Data Table (md+) */}
+          <div className="hidden md:block rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] overflow-hidden shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -1124,7 +1381,7 @@ export default function DashboardClient({
                       return (
                         <tr
                           key={marker.name}
-                          id={`row-${slug}`}
+                          id={slug}
                           onClick={() => setActiveModalMarkerName(marker.name)}
                           className={`group cursor-pointer transition-colors hover:bg-[var(--bg-elevated)]/75 scroll-mt-36 ${
                             isRowHighlighted ? 'row-pulse-highlight' : ''

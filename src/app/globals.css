@@ -56,14 +56,25 @@ html {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  min-height: 100dvh;
+  overflow-x: clip;
   selection-background-color: rgba(56, 189, 248, 0.25);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .font-serif-editorial {
@@ -91,7 +102,8 @@ body {
   }
 }
 
-.row-pulse-highlight > td {
+.row-pulse-highlight > td,
+.card-pulse-highlight {
   animation: rowPulseHighlight 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

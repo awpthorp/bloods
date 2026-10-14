@@ -151,7 +151,7 @@ export default function BiomarkerModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-2.5 sm:p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -159,27 +159,27 @@ export default function BiomarkerModal({
       aria-modal="true"
       aria-labelledby="biomarker-modal-title"
     >
-      <div className="w-full max-w-3xl rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden my-8">
+      <div className="w-full max-w-3xl rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden my-4 sm:my-8">
         {/* Top bar */}
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-6 py-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="text-[11px] font-mono-tabular uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
+        <div className="flex items-start justify-between gap-3 sm:gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 sm:px-6 py-3.5 sm:py-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+              <span className="text-[10px] sm:text-[11px] font-mono-tabular uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
                 {categoryMeta?.shortLabel ?? marker.category}
               </span>
               {marker.isDerived && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono-tabular px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
-                  <Calculator className="w-3 h-3" />
-                  Derived: {marker.formulaDescription}
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-mono-tabular px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                  <Calculator className="w-3 h-3 shrink-0" />
+                  <span className="truncate">Derived: {marker.formulaDescription}</span>
                 </span>
               )}
-              <span className="text-xs text-[var(--text-muted)]">
+              <span className="text-[11px] sm:text-xs text-[var(--text-muted)]">
                 {polarityLabel}
               </span>
             </div>
             <h2
               id="biomarker-modal-title"
-              className="text-xl font-bold text-[var(--text-primary)] tracking-tight"
+              className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight"
             >
               {marker.name}
             </h2>
@@ -189,31 +189,31 @@ export default function BiomarkerModal({
             type="button"
             onClick={onClose}
             aria-label="Close modal"
-            className="rounded-lg p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
+            className="rounded-lg p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[82vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[84vh] overflow-y-auto">
           {/* Summary KPI Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             {/* Latest Reading (properly resolves non-null reading + date!) */}
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5">
-              <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
-                Latest Reading {latest.date ? `(${latest.date})` : ''}
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3 sm:p-3.5 min-w-0">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] truncate">
+                Latest {latest.date ? `(${latest.date})` : ''}
               </div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-bold font-mono-tabular text-[var(--text-primary)]">
+              <div className="mt-1 flex items-baseline gap-1.5 min-w-0">
+                <span className="text-xl sm:text-2xl font-bold font-mono-tabular text-[var(--text-primary)] truncate">
                   {formatNumber(latest.value)}
                 </span>
-                <span className="text-xs text-[var(--text-muted)] font-mono-tabular">
+                <span className="text-[11px] sm:text-xs text-[var(--text-muted)] font-mono-tabular shrink-0">
                   {marker.unit}
                 </span>
               </div>
               <div className="mt-1.5">
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider ${
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider ${
                     latestStatus === 'normal'
                       ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                       : latestStatus === 'high'
@@ -229,31 +229,31 @@ export default function BiomarkerModal({
             </div>
 
             {/* Reference Interval */}
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5">
-              <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
-                Reference Interval
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3 sm:p-3.5 min-w-0">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] truncate">
+                Ref Interval
               </div>
-              <div className="mt-1 text-lg font-bold font-mono-tabular text-[var(--text-primary)]">
+              <div className="mt-1 text-base sm:text-lg font-bold font-mono-tabular text-[var(--text-primary)] truncate">
                 {marker.refLabel}{' '}
-                <span className="text-xs font-normal text-[var(--text-muted)]">
+                <span className="text-[11px] sm:text-xs font-normal text-[var(--text-muted)]">
                   {marker.refLabel !== 'N/A' ? marker.unit : ''}
                 </span>
               </div>
-              <div className="mt-2 text-xs text-[var(--text-secondary)] font-mono-tabular">
+              <div className="mt-2 text-[11px] sm:text-xs text-[var(--text-secondary)] font-mono-tabular truncate">
                 {rangePos !== null
-                  ? `${Math.round(rangePos)}% of reference span`
+                  ? `${Math.round(rangePos)}% of ref span`
                   : 'Unbounded / N/A'}
               </div>
             </div>
 
             {/* Latest Change vs Prior */}
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5">
-              <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3 sm:p-3.5 min-w-0">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] truncate">
                 vs Prior {previous.date ? `(${previous.date})` : ''}
               </div>
               <div className="mt-1 flex items-center gap-1.5">
                 <span
-                  className={`text-lg font-bold font-mono-tabular ${
+                  className={`text-base sm:text-lg font-bold font-mono-tabular ${
                     priorEval.direction === 'improving'
                       ? 'text-emerald-400'
                       : priorEval.direction === 'worsening'
@@ -264,21 +264,21 @@ export default function BiomarkerModal({
                   {formatSignedPercent(priorEval.percentChange)}
                 </span>
               </div>
-              <div className="mt-1.5 flex items-center gap-1 text-xs">
+              <div className="mt-1.5 flex items-center gap-1 text-[11px] sm:text-xs">
                 {priorEval.direction === 'improving' && (
                   <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
-                    <TrendingUp className="w-3.5 h-3.5" /> Improving
+                    <TrendingUp className="w-3.5 h-3.5 shrink-0" /> Improving
                   </span>
                 )}
                 {priorEval.direction === 'worsening' && (
                   <span className="inline-flex items-center gap-1 text-rose-400 font-medium">
-                    <TrendingDown className="w-3.5 h-3.5" /> Worsening
+                    <TrendingDown className="w-3.5 h-3.5 shrink-0" /> Worsening
                   </span>
                 )}
                 {(priorEval.direction === 'stable' ||
                   priorEval.direction === 'neutral') && (
                   <span className="inline-flex items-center gap-1 text-[var(--text-secondary)]">
-                    <Minus className="w-3.5 h-3.5" />{' '}
+                    <Minus className="w-3.5 h-3.5 shrink-0" />{' '}
                     {priorEval.direction === 'stable' ? 'Stable' : 'Single reading'}
                   </span>
                 )}
@@ -286,28 +286,28 @@ export default function BiomarkerModal({
             </div>
 
             {/* Total Change vs Baseline */}
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5">
-              <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
-                vs Baseline {baseline.date ? `(${baseline.date})` : ''}
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3 sm:p-3.5 min-w-0">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] truncate">
+                vs Base {baseline.date ? `(${baseline.date})` : ''}
               </div>
-              <div className="mt-1 text-lg font-bold font-mono-tabular text-[var(--text-primary)]">
+              <div className="mt-1 text-base sm:text-lg font-bold font-mono-tabular text-[var(--text-primary)]">
                 {formatSignedPercent(baselineEval.percentChange)}
               </div>
-              <div className="mt-1.5 text-xs text-[var(--text-secondary)] font-mono-tabular">
-                Baseline: {formatNumber(baseline.value)} {marker.unit}
+              <div className="mt-1.5 text-[11px] sm:text-xs text-[var(--text-secondary)] font-mono-tabular truncate">
+                Base: {formatNumber(baseline.value)} {marker.unit}
               </div>
             </div>
           </div>
 
           {/* Trajectory SVG Chart */}
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4">
-            <div className="flex items-center justify-between mb-2 overflow-hidden">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2 overflow-hidden">
               <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
                 Longitudinal Trajectory (Gap-Spanned)
               </span>
               {(marker.min !== undefined || marker.max !== undefined) && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono-tabular shrink-0">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/20 border border-emerald-500/40" />
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-emerald-400 font-mono-tabular shrink-0">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/20 border border-emerald-500/40 shrink-0" />
                   Ref Zone: {marker.refLabel} {marker.unit}
                 </span>
               )}
@@ -458,13 +458,21 @@ export default function BiomarkerModal({
 
             {/* Permanent Fixed-Height Telemetry Readout Strip */}
             <div
-              className={`mt-2 h-11 rounded-xl border px-3 flex items-center justify-between gap-3 overflow-hidden transition-colors ${
+              className={`mt-2 h-[58px] sm:h-11 rounded-xl border px-3 py-1.5 sm:py-0 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-3 overflow-hidden transition-colors ${
                 isInspecting
                   ? 'border-sky-500/40 bg-[var(--bg-elevated)]'
                   : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60'
               }`}
             >
-              <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (isInspecting) setHoverIdx(null);
+                }}
+                className={`flex items-center gap-2 shrink-0 text-left ${
+                  isInspecting ? 'cursor-pointer' : 'cursor-default'
+                }`}
+              >
                 <span
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                     isInspecting ? 'bg-sky-400' : 'bg-emerald-400/75'
@@ -475,14 +483,16 @@ export default function BiomarkerModal({
                     isInspecting ? 'text-sky-400' : 'text-[var(--text-muted)]'
                   }`}
                 >
-                  {isInspecting ? 'INSPECTING' : 'LATEST'} · {dates[activeIdx] ?? '—'}
+                  {isInspecting
+                    ? `INSPECTING · ${dates[activeIdx] ?? '—'} ✕`
+                    : `LATEST · ${dates[activeIdx] ?? '—'}`}
                 </span>
-              </div>
+              </button>
 
-              <div className="flex items-center gap-4 min-w-0 overflow-hidden font-mono-tabular text-xs whitespace-nowrap">
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 min-w-0 overflow-hidden font-mono-tabular text-[11px] sm:text-xs whitespace-nowrap">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-[var(--text-secondary)]">Reading:</span>
-                  <span className="font-semibold text-[var(--text-primary)]">
+                  <span className="font-semibold text-[var(--text-primary)] truncate">
                     {activeVal !== null && activeVal !== undefined
                       ? `${formatNumber(activeVal)} ${marker.unit}`
                       : 'Not tested'}
@@ -502,7 +512,7 @@ export default function BiomarkerModal({
                       />
                     )}
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 text-[var(--text-secondary)]">
+                <div className="flex items-center gap-1 text-[var(--text-secondary)] shrink-0">
                   <span>Range Pos:</span>
                   <span className="text-[var(--text-primary)]">
                     {activePos !== null ? `${Math.round(activePos)}%` : '—'}
@@ -514,9 +524,9 @@ export default function BiomarkerModal({
 
           {/* Data Audit Log Notes (if any historical values were corrected) */}
           {marker.auditNotes && Object.keys(marker.auditNotes).length > 0 && (
-            <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4">
+            <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3.5 sm:p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sky-400 mb-2">
-                <ShieldCheck className="w-4 h-4" />
+                <ShieldCheck className="w-4 h-4 shrink-0" />
                 Verified Historical Data Audit Applied
               </div>
               <ul className="space-y-1.5 text-xs text-[var(--text-primary)]">
@@ -535,18 +545,18 @@ export default function BiomarkerModal({
           {/* Panel-by-Panel Breakdown Table */}
           <div>
             <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2.5">
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-3.5 h-3.5 shrink-0" />
               Panel-by-Panel Readings
             </div>
             <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
-              <table className="w-full text-left border-collapse text-xs">
+              <table className="w-full text-left border-collapse text-[11px] sm:text-xs">
                 <thead>
                   <tr className="border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-muted)] font-mono-tabular">
-                    <th className="py-2.5 px-3">Panel Date</th>
-                    <th className="py-2.5 px-3">Value</th>
-                    <th className="py-2.5 px-3">% of Range</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3">Delta vs Prior</th>
+                    <th className="py-2 px-2 sm:py-2.5 sm:px-3">Date</th>
+                    <th className="py-2 px-2 sm:py-2.5 sm:px-3">Value</th>
+                    <th className="py-2 px-2 sm:py-2.5 sm:px-3">% Range</th>
+                    <th className="py-2 px-2 sm:py-2.5 sm:px-3">Status</th>
+                    <th className="py-2 px-2 sm:py-2.5 sm:px-3">Delta</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-subtle)] font-mono-tabular">
@@ -570,28 +580,28 @@ export default function BiomarkerModal({
 
                     return (
                       <tr key={date} className="hover:bg-[var(--bg-elevated)]/60">
-                        <td className="py-2.5 px-3 font-medium text-[var(--text-primary)]">
+                        <td className="py-2 px-2 sm:py-2.5 sm:px-3 font-medium text-[var(--text-primary)] whitespace-nowrap">
                           {date}
                           {auditNote && (
                             <span
-                              className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-sky-500/15 text-sky-400 border border-sky-500/30"
+                              className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] bg-sky-500/15 text-sky-400 border border-sky-500/30"
                               title={auditNote}
                             >
                               Audited
                             </span>
                           )}
                         </td>
-                        <td className="py-2.5 px-3 font-semibold text-[var(--text-primary)]">
+                        <td className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-[var(--text-primary)] whitespace-nowrap">
                           {val !== null && val !== undefined
                             ? `${formatNumber(val)} ${marker.unit}`
-                            : 'Not tested'}
+                            : '—'}
                         </td>
-                        <td className="py-2.5 px-3 text-[var(--text-secondary)]">
+                        <td className="py-2 px-2 sm:py-2.5 sm:px-3 text-[var(--text-secondary)] whitespace-nowrap">
                           {pos !== null ? `${Math.round(pos)}%` : '—'}
                         </td>
-                        <td className="py-2.5 px-3">
+                        <td className="py-2 px-2 sm:py-2.5 sm:px-3 whitespace-nowrap">
                           <span
-                            className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
+                            className={`inline-flex px-1.5 sm:px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-semibold uppercase ${
                               status === 'normal'
                                 ? 'bg-emerald-500/15 text-emerald-400'
                                 : status === 'high'
@@ -604,7 +614,7 @@ export default function BiomarkerModal({
                             {status === 'unknown' ? '—' : status}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-[var(--text-secondary)]">
+                        <td className="py-2 px-2 sm:py-2.5 sm:px-3 text-[var(--text-secondary)] whitespace-nowrap">
                           {formatSignedPercent(deltaPct)}
                         </td>
                       </tr>
