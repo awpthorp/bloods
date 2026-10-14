@@ -164,11 +164,11 @@ export default function BiomarkerModal({
         <div className="flex items-start justify-between gap-3 sm:gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 sm:px-6 py-3.5 sm:py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-              <span className="text-[10px] sm:text-[11px] font-mono-tabular uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
+              <span className="text-[10px] sm:text-[11px] font-mono-tabular uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] border border-[var(--tone-sky-border)] font-semibold">
                 {categoryMeta?.shortLabel ?? marker.category}
               </span>
               {marker.isDerived && (
-                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-mono-tabular px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-mono-tabular px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 border border-violet-500/30 font-semibold">
                   <Calculator className="w-3 h-3 shrink-0" />
                   <span className="truncate">Derived: {marker.formulaDescription}</span>
                 </span>
@@ -215,12 +215,12 @@ export default function BiomarkerModal({
                 <span
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider ${
                     latestStatus === 'normal'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      ? 'bg-[var(--status-normal-bg)] text-[var(--status-normal-text)] border border-[var(--status-normal-border)]'
                       : latestStatus === 'high'
-                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                      ? 'bg-[var(--status-high-bg)] text-[var(--status-high-text)] border border-[var(--status-high-border)]'
                       : latestStatus === 'low'
-                      ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                      : 'bg-slate-500/15 text-slate-400 border border-slate-500/30'
+                      ? 'bg-[var(--status-low-bg)] text-[var(--status-low-text)] border border-[var(--status-low-border)]'
+                      : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
                   }`}
                 >
                   {latestStatus === 'unknown' ? 'No Ref' : latestStatus}
@@ -255,9 +255,9 @@ export default function BiomarkerModal({
                 <span
                   className={`text-base sm:text-lg font-bold font-mono-tabular ${
                     priorEval.direction === 'improving'
-                      ? 'text-emerald-400'
+                      ? 'text-[var(--tone-emerald)]'
                       : priorEval.direction === 'worsening'
-                      ? 'text-rose-400'
+                      ? 'text-[var(--tone-rose)]'
                       : 'text-[var(--text-primary)]'
                   }`}
                 >
@@ -266,12 +266,12 @@ export default function BiomarkerModal({
               </div>
               <div className="mt-1.5 flex items-center gap-1 text-[11px] sm:text-xs">
                 {priorEval.direction === 'improving' && (
-                  <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                  <span className="inline-flex items-center gap-1 text-[var(--tone-emerald)] font-medium">
                     <TrendingUp className="w-3.5 h-3.5 shrink-0" /> Improving
                   </span>
                 )}
                 {priorEval.direction === 'worsening' && (
-                  <span className="inline-flex items-center gap-1 text-rose-400 font-medium">
+                  <span className="inline-flex items-center gap-1 text-[var(--tone-rose)] font-medium">
                     <TrendingDown className="w-3.5 h-3.5 shrink-0" /> Worsening
                   </span>
                 )}
@@ -524,15 +524,15 @@ export default function BiomarkerModal({
 
           {/* Data Audit Log Notes (if any historical values were corrected) */}
           {marker.auditNotes && Object.keys(marker.auditNotes).length > 0 && (
-            <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3.5 sm:p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sky-400 mb-2">
+            <div className="rounded-xl border border-[var(--tone-sky-border)] bg-[var(--tone-sky-bg)] p-3.5 sm:p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--tone-sky)] mb-2">
                 <ShieldCheck className="w-4 h-4 shrink-0" />
                 Verified Historical Data Audit Applied
               </div>
               <ul className="space-y-1.5 text-xs text-[var(--text-primary)]">
                 {Object.entries(marker.auditNotes).map(([date, note]) => (
                   <li key={date} className="flex items-start gap-2">
-                    <span className="font-mono-tabular font-semibold text-sky-300 shrink-0">
+                    <span className="font-mono-tabular font-semibold text-[var(--tone-sky)] shrink-0">
                       [{date}]:
                     </span>
                     <span className="text-[var(--text-secondary)]">{note}</span>
@@ -584,7 +584,7 @@ export default function BiomarkerModal({
                           {date}
                           {auditNote && (
                             <span
-                              className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] bg-sky-500/15 text-sky-400 border border-sky-500/30"
+                              className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] border border-[var(--tone-sky-border)] font-semibold"
                               title={auditNote}
                             >
                               Audited
@@ -603,11 +603,11 @@ export default function BiomarkerModal({
                           <span
                             className={`inline-flex px-1.5 sm:px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-semibold uppercase ${
                               status === 'normal'
-                                ? 'bg-emerald-500/15 text-emerald-400'
+                                ? 'bg-[var(--status-normal-bg)] text-[var(--status-normal-text)]'
                                 : status === 'high'
-                                ? 'bg-rose-500/15 text-rose-400'
+                                ? 'bg-[var(--status-high-bg)] text-[var(--status-high-text)]'
                                 : status === 'low'
-                                ? 'bg-amber-500/15 text-amber-400'
+                                ? 'bg-[var(--status-low-bg)] text-[var(--status-low-text)]'
                                 : 'text-[var(--text-muted)]'
                             }`}
                           >
