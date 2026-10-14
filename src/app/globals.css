@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+:root,
+[data-theme="dark"] {
+  --bg-canvas: #090c10;
+  --bg-surface: #0f141c;
+  --bg-elevated: #151c27;
+  --bg-subtle: #1b2432;
+  --bg-glass: rgba(15, 20, 28, 0.82);
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.24);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-primary: #38bdf8;
+  --accent-secondary: #818cf8;
+  --status-normal-bg: rgba(16, 185, 129, 0.12);
+  --status-normal-text: #34d399;
+  --status-normal-border: rgba(16, 185, 129, 0.28);
+  --status-high-bg: rgba(244, 63, 94, 0.14);
+  --status-high-text: #fb7185;
+  --status-high-border: rgba(244, 63, 94, 0.32);
+  --status-low-bg: rgba(245, 158, 11, 0.14);
+  --status-low-text: #fbbf24;
+  --status-low-border: rgba(245, 158, 11, 0.32);
+  --chart-grid: rgba(148, 163, 184, 0.1);
+}
+
+[data-theme="light"] {
+  --bg-canvas: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-subtle: #edf2f7;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent-primary: #0284c7;
+  --accent-secondary: #4f46e5;
+  --status-normal-bg: rgba(16, 185, 129, 0.1);
+  --status-normal-text: #047857;
+  --status-normal-border: rgba(16, 185, 129, 0.28);
+  --status-high-bg: rgba(244, 63, 94, 0.1);
+  --status-high-text: #be123c;
+  --status-high-border: rgba(244, 63, 94, 0.28);
+  --status-low-bg: rgba(245, 158, 11, 0.12);
+  --status-low-text: #b45309;
+  --status-low-border: rgba(245, 158, 11, 0.3);
+  --chart-grid: rgba(15, 23, 42, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  selection-background-color: rgba(56, 189, 248, 0.25);
+}
+
+.font-serif-editorial {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Highlight pulse when jumping from an alert/insight item to a table row */
+@keyframes rowPulseHighlight {
+  0% {
+    background-color: rgba(56, 189, 248, 0.28);
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.6);
+  }
+  70% {
+    background-color: rgba(56, 189, 248, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.row-pulse-highlight > td {
+  animation: rowPulseHighlight 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom sleek scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
