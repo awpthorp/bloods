@@ -2,11 +2,11 @@
 
 :root,
 [data-theme="light"] {
-  --bg-canvas: #f4f6f9;
+  --bg-canvas: #f3f6fa;
   --bg-surface: #ffffff;
   --bg-elevated: #f8fafc;
-  --bg-subtle: #edf2f7;
-  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-subtle: #e9eff6;
+  --bg-glass: rgba(255, 255, 255, 0.9);
   --border-subtle: rgba(15, 23, 42, 0.09);
   --border-strong: rgba(15, 23, 42, 0.18);
   --text-primary: #0f172a;
@@ -14,6 +14,18 @@
   --text-muted: #64748b;
   --accent-primary: #0284c7;
   --accent-secondary: #4f46e5;
+  --tone-sky: #0284c7;
+  --tone-sky-bg: rgba(2, 132, 199, 0.1);
+  --tone-sky-border: rgba(2, 132, 199, 0.25);
+  --tone-emerald: #047857;
+  --tone-emerald-bg: rgba(16, 185, 129, 0.1);
+  --tone-emerald-border: rgba(16, 185, 129, 0.28);
+  --tone-rose: #be123c;
+  --tone-rose-bg: rgba(244, 63, 94, 0.1);
+  --tone-rose-border: rgba(244, 63, 94, 0.28);
+  --tone-amber: #b45309;
+  --tone-amber-bg: rgba(245, 158, 11, 0.12);
+  --tone-amber-border: rgba(245, 158, 11, 0.3);
   --status-normal-bg: rgba(16, 185, 129, 0.1);
   --status-normal-text: #047857;
   --status-normal-border: rgba(16, 185, 129, 0.28);
@@ -24,6 +36,7 @@
   --status-low-text: #b45309;
   --status-low-border: rgba(245, 158, 11, 0.3);
   --chart-grid: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
 }
 
 [data-theme="dark"] {
@@ -39,6 +52,18 @@
   --text-muted: #64748b;
   --accent-primary: #38bdf8;
   --accent-secondary: #818cf8;
+  --tone-sky: #38bdf8;
+  --tone-sky-bg: rgba(56, 189, 248, 0.14);
+  --tone-sky-border: rgba(56, 189, 248, 0.3);
+  --tone-emerald: #34d399;
+  --tone-emerald-bg: rgba(16, 185, 129, 0.14);
+  --tone-emerald-border: rgba(16, 185, 129, 0.3);
+  --tone-rose: #fb7185;
+  --tone-rose-bg: rgba(244, 63, 94, 0.14);
+  --tone-rose-border: rgba(244, 63, 94, 0.32);
+  --tone-amber: #fbbf24;
+  --tone-amber-bg: rgba(245, 158, 11, 0.14);
+  --tone-amber-border: rgba(245, 158, 11, 0.32);
   --status-normal-bg: rgba(16, 185, 129, 0.12);
   --status-normal-text: #34d399;
   --status-normal-border: rgba(16, 185, 129, 0.28);
@@ -49,6 +74,7 @@
   --status-low-text: #fbbf24;
   --status-low-border: rgba(245, 158, 11, 0.32);
   --chart-grid: rgba(148, 163, 184, 0.1);
+  --card-shadow: none;
 }
 
 html {

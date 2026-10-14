@@ -62,10 +62,10 @@ export interface DashboardClientProps {
 }
 
 const KPI_HEADLINE_NAMES = [
+  'Total Testosterone (ng/mL)',
   'eGFR (ml/min)',
   'Creatinine (mg/dL)',
   'LDL (mg/dL)',
-  'Total Testosterone (ng/mL)',
   'Triglycerides (mg/dL)',
   'HbA1c (%)',
 ];
@@ -326,9 +326,9 @@ export default function DashboardClient({
     });
 
     return {
-      actionable,
-      watchlist: watchlist.slice(0, 6),
-      improvements: improvements.slice(0, 6),
+      actionable: actionable.slice(0, 4),
+      watchlist: watchlist.slice(0, 4),
+      improvements: improvements.slice(0, 4),
     };
   }, [biomarkers, dates]);
 
@@ -436,15 +436,15 @@ export default function DashboardClient({
       <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-glass)] backdrop-blur-xl">
         <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 sm:gap-4">
           <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-inner">
-              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--tone-sky-bg)] border border-[var(--tone-sky-border)] flex items-center justify-center shrink-0 shadow-inner">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--tone-sky)]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <h1 className="text-sm sm:text-xl font-bold tracking-tight text-[var(--text-primary)] truncate">
                   Biomarker &amp; Longevity Telemetry
                 </h1>
-                <span className="hidden sm:inline-flex text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="hidden sm:inline-flex text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--tone-emerald-bg)] text-[var(--tone-emerald)] border border-[var(--tone-emerald-border)] font-semibold">
                   Male · Mid-30s
                 </span>
                 <span className="text-[10px] sm:text-[11px] font-mono-tabular px-2 sm:px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] shrink-0">
@@ -468,16 +468,16 @@ export default function DashboardClient({
               onClick={() => setShowAuditDrawer((prev) => !prev)}
               className={`shrink-0 inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold transition-all ${
                 showAuditDrawer
-                  ? 'border-sky-400 bg-sky-500/15 text-sky-300'
+                  ? 'border-[var(--tone-sky)] bg-[var(--tone-sky-bg)] text-[var(--tone-sky)]'
                   : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--tone-sky)] shrink-0" />
               <span>
                 <span className="hidden sm:inline">Data </span>Audit
                 <span className="hidden sm:inline"> Log</span>
               </span>
-              <span className="font-mono-tabular px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 text-[10px]">
+              <span className="font-mono-tabular px-1.5 py-0.2 rounded-full bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] text-[10px] font-bold">
                 {dataAuditLog.length}
               </span>
             </button>
@@ -498,7 +498,7 @@ export default function DashboardClient({
                 type="button"
                 onClick={handleResetCustomPanels}
                 title="Remove custom local panels and restore 5 baseline panels"
-                className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20"
+                className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-[var(--tone-amber-border)] bg-[var(--tone-amber-bg)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--tone-amber)] hover:opacity-90"
               >
                 <RotateCcw className="w-3.5 h-3.5 shrink-0" />
                 <span>
@@ -512,7 +512,7 @@ export default function DashboardClient({
               onClick={handleExportCsv}
               className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--text-primary)] hover:border-sky-400 transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <Download className="w-3.5 h-3.5 text-[var(--tone-sky)] shrink-0" />
               <span>
                 <span className="hidden sm:inline">Export </span>CSV
               </span>
@@ -537,7 +537,7 @@ export default function DashboardClient({
               onClick={handleLockSession}
               disabled={isLocking}
               title="Lock telemetry session and require password"
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-rose-400/50 hover:text-rose-300 transition-colors disabled:opacity-50"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-[var(--tone-rose-border)] hover:text-[var(--tone-rose)] transition-colors disabled:opacity-50"
             >
               <Lock className="w-3.5 h-3.5 shrink-0" />
               <span className="hidden sm:inline">
@@ -551,10 +551,10 @@ export default function DashboardClient({
       <main className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 pt-5 sm:pt-6 space-y-6 sm:space-y-8">
         {/* Collapsible Verified Data Audit Log Drawer */}
         {showAuditDrawer && (
-          <section className="rounded-2xl border border-sky-500/30 bg-sky-500/5 p-4 sm:p-5 shadow-lg">
+          <section className="rounded-2xl border border-[var(--tone-sky-border)] bg-[var(--tone-sky-bg)] p-4 sm:p-5 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <div>
-                <div className="flex items-center gap-2 text-sky-400 text-xs font-mono-tabular uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-[var(--tone-sky)] text-xs font-mono-tabular uppercase tracking-wider font-semibold">
                   <ShieldCheck className="w-4 h-4 shrink-0" />
                   Historical Data Integrity &amp; Unit Audit
                 </div>
@@ -572,7 +572,7 @@ export default function DashboardClient({
                 className={`self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                   onlyAudited
                     ? 'bg-sky-500 text-slate-950 border-sky-400'
-                    : 'bg-[var(--bg-elevated)] text-sky-400 border-sky-500/30 hover:bg-sky-500/15'
+                    : 'bg-[var(--bg-surface)] text-[var(--tone-sky)] border-[var(--tone-sky-border)] hover:bg-[var(--bg-elevated)]'
                 }`}
               >
                 {onlyAudited ? 'Showing Only Audited Rows ✓' : 'Filter Table to Audited Rows'}
@@ -584,7 +584,7 @@ export default function DashboardClient({
                 <div
                   key={`${entry.biomarker}-${entry.date}`}
                   onClick={() => jumpToBiomarker(entry.biomarker)}
-                  className={`cursor-pointer rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 hover:border-sky-400/50 transition-all ${
+                  className={`cursor-pointer rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 hover:border-[var(--tone-sky-border)] transition-all ${
                     idx === 0
                       ? 'md:col-span-2 xl:col-span-2'
                       : idx === 1
@@ -596,16 +596,16 @@ export default function DashboardClient({
                     <span className="font-semibold text-xs text-[var(--text-primary)]">
                       {entry.biomarker}
                     </span>
-                    <span className="font-mono-tabular text-[10px] px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 shrink-0">
+                    <span className="font-mono-tabular text-[10px] px-2 py-0.5 rounded bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] font-semibold shrink-0">
                       {entry.date}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-mono-tabular my-1">
-                    <span className="line-through text-rose-400/80">
+                    <span className="line-through text-[var(--tone-rose)] opacity-80">
                       {entry.legacyValue}
                     </span>
                     <span className="text-[var(--text-muted)]">→</span>
-                    <span className="font-semibold text-emerald-400">
+                    <span className="font-semibold text-[var(--tone-emerald)]">
                       {entry.correctedValue}
                     </span>
                   </div>
@@ -624,17 +624,20 @@ export default function DashboardClient({
           className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4"
         >
           {/* Card 1: Out of Range / Action Required */}
-          <div className="rounded-2xl border border-rose-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
+          <div
+            style={{ boxShadow: 'var(--card-shadow)' }}
+            className="rounded-2xl border border-[var(--tone-rose-border)] bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-rose-400 truncate">
+                  <AlertTriangle className="w-4 h-4 text-[var(--tone-rose)] shrink-0" />
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--tone-rose)] truncate">
                     Out of Range · Latest ({dates[dates.length - 1]})
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 shrink-0">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--tone-rose-bg)] text-[var(--tone-rose)] border border-[var(--tone-rose-border)] shrink-0">
                   {clinicalBrief.actionable.length} Markers
                 </span>
               </div>
@@ -643,7 +646,7 @@ export default function DashboardClient({
                 {clinicalBrief.actionable.map((item) => (
                   <li
                     key={item.marker.name}
-                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-rose-500/40 transition-colors"
+                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-[var(--tone-rose-border)] transition-colors"
                   >
                     <button
                       type="button"
@@ -651,14 +654,14 @@ export default function DashboardClient({
                       className="text-left flex-1 min-w-0"
                     >
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-rose-300 transition-colors">
+                        <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-[var(--tone-rose)] transition-colors">
                           {item.marker.name}
                         </span>
                         <span
                           className={`text-[10px] font-mono-tabular uppercase px-1.5 py-0.2 rounded font-semibold ${
                             item.status === 'high'
-                              ? 'bg-rose-500/20 text-rose-300'
-                              : 'bg-amber-500/20 text-amber-300'
+                              ? 'bg-[var(--tone-rose-bg)] text-[var(--tone-rose)]'
+                              : 'bg-[var(--tone-amber-bg)] text-[var(--tone-amber)]'
                           }`}
                         >
                           {item.status}
@@ -671,7 +674,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-[var(--tone-sky)] rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -683,17 +686,20 @@ export default function DashboardClient({
           </div>
 
           {/* Card 2: Borderline & Watchlist */}
-          <div className="rounded-2xl border border-amber-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
+          <div
+            style={{ boxShadow: 'var(--card-shadow)' }}
+            className="rounded-2xl border border-[var(--tone-amber-border)] bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Activity className="w-4 h-4 text-amber-400 shrink-0" />
-                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-400 truncate">
+                  <Activity className="w-4 h-4 text-[var(--tone-amber)] shrink-0" />
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--tone-amber)] truncate">
                     Borderline &amp; Watchlist
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] shrink-0">
                   {clinicalBrief.watchlist.length} Markers
                 </span>
               </div>
@@ -702,14 +708,14 @@ export default function DashboardClient({
                 {clinicalBrief.watchlist.map((item) => (
                   <li
                     key={item.marker.name}
-                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-amber-500/40 transition-colors"
+                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-[var(--tone-amber-border)] transition-colors"
                   >
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, false)}
                       className="text-left flex-1 min-w-0"
                     >
-                      <div className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-amber-300 transition-colors">
+                      <div className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-[var(--tone-amber)] transition-colors">
                         {item.marker.name}
                       </div>
                       <p className="text-[11px] font-mono-tabular text-[var(--text-secondary)] mt-0.5">
@@ -719,7 +725,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-[var(--tone-sky)] rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -731,17 +737,20 @@ export default function DashboardClient({
           </div>
 
           {/* Card 3: Positive Physiological Trajectories */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0">
+          <div
+            style={{ boxShadow: 'var(--card-shadow)' }}
+            className="rounded-2xl border border-[var(--tone-emerald-border)] bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-w-0"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 truncate">
+                  <CheckCircle2 className="w-4 h-4 text-[var(--tone-emerald)] shrink-0" />
+                  <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--tone-emerald)] truncate">
                     Favorable Trajectories
                   </h2>
                 </div>
-                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+                <span className="font-mono-tabular text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--tone-emerald-bg)] text-[var(--tone-emerald)] border border-[var(--tone-emerald-border)] shrink-0">
                   {statusCounts.normal}/{statusCounts.total} In Range
                 </span>
               </div>
@@ -750,7 +759,7 @@ export default function DashboardClient({
                 {clinicalBrief.improvements.map((item) => (
                   <li
                     key={item.marker.name}
-                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-emerald-500/40 transition-colors"
+                    className="group flex items-start justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-2.5 hover:border-[var(--tone-emerald-border)] transition-colors"
                   >
                     <button
                       type="button"
@@ -758,10 +767,10 @@ export default function DashboardClient({
                       className="text-left flex-1 min-w-0"
                     >
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-emerald-300 transition-colors">
+                        <span className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-[var(--tone-emerald)] transition-colors">
                           {item.marker.name}
                         </span>
-                        <span className="text-[10px] font-mono-tabular px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 font-semibold">
+                        <span className="text-[10px] font-mono-tabular px-1.5 py-0.2 rounded bg-[var(--tone-emerald-bg)] text-[var(--tone-emerald)] font-semibold">
                           {item.pctText}
                         </span>
                       </div>
@@ -772,7 +781,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => jumpToBiomarker(item.marker.name, true)}
-                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-sky-400 rounded-lg shrink-0"
+                      className="p-2 sm:p-1.5 text-[var(--text-muted)] hover:text-[var(--tone-sky)] rounded-lg shrink-0"
                       title={`Open trajectory chart for ${item.marker.name}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -807,8 +816,9 @@ export default function DashboardClient({
               return (
                 <div
                   key={marker.name}
+                  style={{ boxShadow: 'var(--card-shadow)' }}
                   onClick={() => setActiveModalMarkerName(marker.name)}
-                  className="cursor-pointer group rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 sm:p-4 hover:border-sky-400/50 transition-all flex flex-col justify-between min-w-0"
+                  className="cursor-pointer group rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 sm:p-4 hover:border-[var(--tone-sky-border)] transition-all flex flex-col justify-between min-w-0"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-1.5">
@@ -818,10 +828,10 @@ export default function DashboardClient({
                       <span
                         className={`text-[9.5px] sm:text-[10px] font-mono-tabular uppercase px-1.5 sm:px-2 py-0.5 rounded-full font-semibold shrink-0 ${
                           status === 'normal'
-                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            ? 'bg-[var(--status-normal-bg)] text-[var(--status-normal-text)] border border-[var(--status-normal-border)]'
                             : status === 'high'
-                            ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                            : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                            ? 'bg-[var(--status-high-bg)] text-[var(--status-high-text)] border border-[var(--status-high-border)]'
+                            : 'bg-[var(--status-low-bg)] text-[var(--status-low-text)] border border-[var(--status-low-border)]'
                         }`}
                       >
                         {status}
@@ -844,9 +854,9 @@ export default function DashboardClient({
                     <span
                       className={`inline-flex items-center gap-0.5 sm:gap-1 font-mono-tabular font-semibold ${
                         changeEval.direction === 'improving'
-                          ? 'text-emerald-400'
+                          ? 'text-[var(--tone-emerald)]'
                           : changeEval.direction === 'worsening'
-                          ? 'text-rose-400'
+                          ? 'text-[var(--tone-rose)]'
                           : 'text-[var(--text-secondary)]'
                       }`}
                     >
@@ -883,7 +893,7 @@ export default function DashboardClient({
         <section id="biomarker-table-section" className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
             <div>
-              <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-sky-400">
+              <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-[var(--tone-sky)] font-semibold">
                 Complete Assay Matrix
               </span>
               <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] tracking-tight">
@@ -899,11 +909,11 @@ export default function DashboardClient({
                 onClick={() => setOnlyAudited((prev) => !prev)}
                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
                   onlyAudited
-                    ? 'border-sky-400 bg-sky-500/20 text-sky-300'
+                    ? 'border-[var(--tone-sky)] bg-[var(--tone-sky-bg)] text-[var(--tone-sky)]'
                     : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 text-[var(--tone-sky)] shrink-0" />
                 <span>Audited Fixes Only (7)</span>
               </button>
 
@@ -1391,11 +1401,11 @@ export default function DashboardClient({
                           <td className="py-3 px-4 sticky left-0 z-10 bg-[var(--bg-surface)] group-hover:bg-[var(--bg-elevated)] transition-colors border-r border-[var(--border-subtle)]">
                             <div className="flex items-center justify-between gap-2">
                               <div>
-                                <div className="font-semibold text-[var(--text-primary)] group-hover:text-sky-400 transition-colors flex items-center gap-1.5">
+                                <div className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--tone-sky)] transition-colors flex items-center gap-1.5">
                                   <span>{marker.name}</span>
                                   {hasAuditNotes && (
                                     <span
-                                      className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30"
+                                      className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] border border-[var(--tone-sky-border)] font-semibold"
                                       title={Object.entries(marker.auditNotes!)
                                         .map(([d, n]) => `${d}: ${n}`)
                                         .join(' | ')}
@@ -1521,9 +1531,9 @@ export default function DashboardClient({
                                 <span
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold ${
                                     priorEval.direction === 'improving'
-                                      ? 'bg-emerald-500/12 text-emerald-400'
+                                      ? 'bg-[var(--tone-emerald-bg)] text-[var(--tone-emerald)]'
                                       : priorEval.direction === 'worsening'
-                                      ? 'bg-rose-500/12 text-rose-400'
+                                      ? 'bg-[var(--tone-rose-bg)] text-[var(--tone-rose)]'
                                       : 'text-[var(--text-secondary)]'
                                   }`}
                                 >
@@ -1551,9 +1561,9 @@ export default function DashboardClient({
                                 <span
                                   className={`font-semibold ${
                                     baselineEval.direction === 'improving'
-                                      ? 'text-emerald-400'
+                                      ? 'text-[var(--tone-emerald)]'
                                       : baselineEval.direction === 'worsening'
-                                      ? 'text-rose-400'
+                                      ? 'text-[var(--tone-rose)]'
                                       : 'text-[var(--text-secondary)]'
                                   }`}
                                 >

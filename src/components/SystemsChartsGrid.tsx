@@ -2,7 +2,14 @@
 
 import React, { useState } from 'react';
 import { Biomarker } from '@/data/blood-tests';
-import { formatNumber, getStatus } from '@/lib/biomarker-utils';
+import {
+  evaluateChange,
+  formatNumber,
+  formatSignedPercent,
+  getLatestReading,
+  getPreviousReading,
+  getStatus,
+} from '@/lib/biomarker-utils';
 import { Activity, Maximize2 } from 'lucide-react';
 
 interface SeriesConfig {
@@ -37,99 +44,6 @@ interface SystemChartDefinition {
 
 const SYSTEM_CHARTS: SystemChartDefinition[] = [
   {
-    id: 'renal',
-    title: 'Renal Filtration & Creatinine',
-    subtitle: 'Dual-axis native units (eGFR ml/min vs Creatinine mg/dL)',
-    leftAxisLabel: 'eGFR (ml/min)',
-    rightAxisLabel: 'Creatinine (mg/dL)',
-    series: [
-      {
-        biomarkerName: 'eGFR (ml/min)',
-        label: 'eGFR (ml/min)',
-        color: '#38bdf8',
-        axis: 'left',
-      },
-      {
-        biomarkerName: 'Creatinine (mg/dL)',
-        label: 'Creatinine (mg/dL)',
-        color: '#fb7185',
-        axis: 'right',
-      },
-      {
-        biomarkerName: 'BUN (mg/dL)',
-        label: 'BUN (mg/dL)',
-        color: '#a78bfa',
-        axis: 'left',
-      },
-    ],
-    shadedBand: {
-      axis: 'left',
-      min: 90,
-      max: 125,
-      label: 'eGFR > 90 Normal Band',
-    },
-    thresholds: [
-      {
-        value: 1.1,
-        axis: 'right',
-        label: 'Creatinine Max (1.1 mg/dL)',
-        color: '#fb7185',
-      },
-    ],
-  },
-  {
-    id: 'lipids',
-    title: 'Lipid & Atherogenic Trajectory',
-    subtitle: 'Total, LDL, Non-HDL, HDL, and Triglycerides (mg/dL)',
-    leftAxisLabel: 'mg/dL',
-    series: [
-      {
-        biomarkerName: 'Total Cholesterol (mg/dL)',
-        label: 'Total Chol',
-        color: '#38bdf8',
-        axis: 'left',
-      },
-      {
-        biomarkerName: 'Non-HDL (mg/dL)',
-        label: 'Non-HDL',
-        color: '#f59e0b',
-        axis: 'left',
-      },
-      {
-        biomarkerName: 'LDL (mg/dL)',
-        label: 'LDL-C',
-        color: '#fb7185',
-        axis: 'left',
-      },
-      {
-        biomarkerName: 'HDL (mg/dL)',
-        label: 'HDL-C',
-        color: '#34d399',
-        axis: 'left',
-      },
-      {
-        biomarkerName: 'Triglycerides (mg/dL)',
-        label: 'Triglycerides',
-        color: '#a78bfa',
-        axis: 'left',
-      },
-    ],
-    thresholds: [
-      {
-        value: 200,
-        axis: 'left',
-        label: 'TC < 200',
-        color: '#38bdf8',
-      },
-      {
-        value: 100,
-        axis: 'left',
-        label: 'LDL < 100',
-        color: '#fb7185',
-      },
-    ],
-  },
-  {
     id: 'hormones',
     title: 'Endocrine & Androgen Axis',
     subtitle: 'Total Testosterone (ng/mL) vs SHBG (nmol/L) & Free Androgen Index',
@@ -139,13 +53,13 @@ const SYSTEM_CHARTS: SystemChartDefinition[] = [
       {
         biomarkerName: 'Total Testosterone (ng/mL)',
         label: 'Total Testosterone',
-        color: '#34d399',
+        color: '#10b981',
         axis: 'left',
       },
       {
         biomarkerName: 'SHBG (nmol/L)',
         label: 'SHBG (nmol/L)',
-        color: '#38bdf8',
+        color: '#0ea5e9',
         axis: 'right',
       },
       {
@@ -161,6 +75,99 @@ const SYSTEM_CHARTS: SystemChartDefinition[] = [
         axis: 'right',
         label: 'FAI Lower Ref (35)',
         color: '#f59e0b',
+      },
+    ],
+  },
+  {
+    id: 'renal',
+    title: 'Renal Filtration & Creatinine',
+    subtitle: 'Dual-axis native units (eGFR ml/min vs Creatinine mg/dL)',
+    leftAxisLabel: 'eGFR (ml/min)',
+    rightAxisLabel: 'Creatinine (mg/dL)',
+    series: [
+      {
+        biomarkerName: 'eGFR (ml/min)',
+        label: 'eGFR (ml/min)',
+        color: '#0ea5e9',
+        axis: 'left',
+      },
+      {
+        biomarkerName: 'Creatinine (mg/dL)',
+        label: 'Creatinine (mg/dL)',
+        color: '#f43f5e',
+        axis: 'right',
+      },
+      {
+        biomarkerName: 'BUN (mg/dL)',
+        label: 'BUN (mg/dL)',
+        color: '#8b5cf6',
+        axis: 'left',
+      },
+    ],
+    shadedBand: {
+      axis: 'left',
+      min: 90,
+      max: 125,
+      label: 'eGFR > 90 Normal Band',
+    },
+    thresholds: [
+      {
+        value: 1.1,
+        axis: 'right',
+        label: 'Creatinine Max (1.1 mg/dL)',
+        color: '#f43f5e',
+      },
+    ],
+  },
+  {
+    id: 'lipids',
+    title: 'Lipid & Atherogenic Trajectory',
+    subtitle: 'Total, LDL, Non-HDL, HDL, and Triglycerides (mg/dL)',
+    leftAxisLabel: 'mg/dL',
+    series: [
+      {
+        biomarkerName: 'Total Cholesterol (mg/dL)',
+        label: 'Total Chol',
+        color: '#0ea5e9',
+        axis: 'left',
+      },
+      {
+        biomarkerName: 'Non-HDL (mg/dL)',
+        label: 'Non-HDL',
+        color: '#f59e0b',
+        axis: 'left',
+      },
+      {
+        biomarkerName: 'LDL (mg/dL)',
+        label: 'LDL-C',
+        color: '#f43f5e',
+        axis: 'left',
+      },
+      {
+        biomarkerName: 'HDL (mg/dL)',
+        label: 'HDL-C',
+        color: '#10b981',
+        axis: 'left',
+      },
+      {
+        biomarkerName: 'Triglycerides (mg/dL)',
+        label: 'Triglycerides',
+        color: '#8b5cf6',
+        axis: 'left',
+      },
+    ],
+    thresholds: [
+      {
+        value: 200,
+        axis: 'left',
+        label: 'TC < 200',
+        color: '#0ea5e9',
+      },
+      {
+        value: 100,
+        axis: 'left',
+        label: 'LDL < 100',
+        color: '#f43f5e',
       },
     ],
   },
@@ -329,12 +336,14 @@ function SystemCardChart({
   biomarkers,
   dates,
   onSelectBiomarker,
+  wide = false,
   className = '',
 }: {
   chart: SystemChartDefinition;
   biomarkers: Biomarker[];
   dates: string[];
   onSelectBiomarker: (marker: Biomarker) => void;
+  wide?: boolean;
   className?: string;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -345,12 +354,12 @@ function SystemCardChart({
 
   const activeSeries = chart.series.filter((s) => !hiddenSeries[s.biomarkerName]);
 
-  const width = 540;
-  const height = 240;
-  const padLeft = 44;
-  const padRight = chart.rightAxisLabel ? 44 : 20;
-  const padTop = 20;
-  const padBottom = 34;
+  const width = wide ? 860 : 460;
+  const height = 204;
+  const padLeft = 40;
+  const padRight = chart.rightAxisLabel ? 40 : 18;
+  const padTop = 16;
+  const padBottom = 28;
   const plotW = width - padLeft - padRight;
   const plotH = height - padTop - padBottom;
 
@@ -427,91 +436,148 @@ function SystemCardChart({
     setHoverIdx((prev) => (prev === boundedIdx ? prev : boundedIdx));
   };
 
+  const leadMarker = chart.series[0]
+    ? markerMap.get(chart.series[0].biomarkerName)
+    : undefined;
+  const leadLatest = leadMarker
+    ? getLatestReading(leadMarker.values, dates)
+    : null;
+  const leadPrev = leadMarker
+    ? getPreviousReading(leadMarker.values, dates)
+    : null;
+  const leadStatus =
+    leadMarker && leadLatest ? getStatus(leadLatest.value, leadMarker) : 'unknown';
+  const leadDelta =
+    leadMarker && leadLatest && leadPrev
+      ? evaluateChange(leadLatest.value, leadPrev.value, leadMarker)
+      : null;
+
   return (
     <div
+      style={{ boxShadow: 'var(--card-shadow)' }}
       className={`rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 sm:p-5 flex flex-col justify-between transition-colors hover:border-[var(--border-strong)] relative min-w-0 ${className}`.trim()}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2.5 sm:gap-3 mb-2.5 sm:mb-3 overflow-hidden">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-sky-400 shrink-0" />
-            <h3 className="font-semibold text-sm text-[var(--text-primary)] tracking-tight truncate">
-              {chart.title}
-            </h3>
+      {/* Top Group: Header + Interactive Legend Pills anchored together */}
+      <div className="mb-3">
+        <div className="flex items-start justify-between gap-2.5 sm:gap-3 mb-2.5 overflow-hidden">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[var(--tone-sky)] shrink-0" />
+              <h3 className="font-semibold text-sm sm:text-[15px] text-[var(--text-primary)] tracking-tight truncate">
+                {chart.title}
+              </h3>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
+              {chart.subtitle}
+            </p>
           </div>
-          <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
-            {chart.subtitle}
-          </p>
-        </div>
 
-        {/* Quick inspect first biomarker */}
-        {chart.series[0] && markerMap.get(chart.series[0].biomarkerName) && (
-          <button
-            type="button"
-            onClick={() => {
-              const m = markerMap.get(chart.series[0].biomarkerName);
-              if (m) onSelectBiomarker(m);
-            }}
-            className="text-xs text-[var(--text-secondary)] hover:text-sky-400 p-1.5 rounded-lg border border-transparent hover:border-[var(--border-subtle)] transition-colors shrink-0"
-            title={`Inspect ${chart.series[0].biomarkerName}`}
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* Interactive Legend Pills */}
-      <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        {chart.series.map((s) => {
-          const isHidden = !!hiddenSeries[s.biomarkerName];
-          const m = markerMap.get(s.biomarkerName);
-          return (
-            <div
-              key={s.biomarkerName}
-              className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[10.5px] sm:text-[11px] overflow-hidden max-w-full"
-            >
+          {/* Primary Lead Metric Callout + Inspect Button */}
+          <div className="flex items-center gap-2 shrink-0">
+            {leadMarker && leadLatest && leadLatest.value !== null && (
               <button
                 type="button"
-                onClick={() => toggleSeries(s.biomarkerName)}
-                className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 transition-opacity min-w-0 ${
-                  isHidden ? 'opacity-40 line-through' : 'opacity-100'
-                }`}
-                title="Click to toggle series visibility"
+                onClick={() => onSelectBiomarker(leadMarker)}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1 hover:border-[var(--border-strong)] transition-colors"
+                title={`Lead metric: ${leadMarker.name} (${leadLatest.date})`}
               >
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: s.color }}
-                />
-                <span className="font-medium text-[var(--text-primary)] truncate">
-                  {s.label}
+                <span className="font-mono-tabular text-xs font-bold text-[var(--text-primary)]">
+                  {formatNumber(leadLatest.value)}
                 </span>
-                {s.axis === 'right' && (
-                  <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] shrink-0">
-                    (R)
+                <span className="font-mono-tabular text-[10px] text-[var(--text-muted)]">
+                  {leadMarker.unit}
+                </span>
+                {leadDelta && leadDelta.percentChange !== null && (
+                  <span
+                    className={`font-mono-tabular text-[10px] font-semibold px-1.5 py-0.2 rounded-full ${
+                      leadDelta.direction === 'improving'
+                        ? 'bg-[var(--tone-emerald-bg)] text-[var(--tone-emerald)]'
+                        : leadDelta.direction === 'worsening'
+                        ? 'bg-[var(--tone-rose-bg)] text-[var(--tone-rose)]'
+                        : 'text-[var(--text-secondary)]'
+                    }`}
+                  >
+                    {formatSignedPercent(leadDelta.percentChange)}
                   </span>
                 )}
+                {leadStatus !== 'unknown' && (
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      leadStatus === 'high'
+                        ? 'bg-rose-500'
+                        : leadStatus === 'low'
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                    }`}
+                  />
+                )}
               </button>
-              {m && (
+            )}
+            {leadMarker && (
+              <button
+                type="button"
+                onClick={() => onSelectBiomarker(leadMarker)}
+                className="text-xs text-[var(--text-secondary)] hover:text-[var(--tone-sky)] p-1.5 rounded-lg border border-transparent hover:border-[var(--border-subtle)] transition-colors shrink-0"
+                title={`Inspect ${leadMarker.name}`}
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Interactive Legend Pills */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {chart.series.map((s) => {
+            const isHidden = !!hiddenSeries[s.biomarkerName];
+            const m = markerMap.get(s.biomarkerName);
+            return (
+              <div
+                key={s.biomarkerName}
+                className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[10.5px] sm:text-[11px] overflow-hidden max-w-full"
+              >
                 <button
                   type="button"
-                  onClick={() => onSelectBiomarker(m)}
-                  className="px-1.5 py-1 text-[var(--text-muted)] hover:text-sky-400 border-l border-[var(--border-subtle)] transition-colors shrink-0"
-                  title={`Open detailed telemetry modal for ${s.biomarkerName}`}
+                  onClick={() => toggleSeries(s.biomarkerName)}
+                  className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 transition-opacity min-w-0 ${
+                    isHidden ? 'opacity-40 line-through' : 'opacity-100'
+                  }`}
+                  title="Click to toggle series visibility"
                 >
-                  ↗
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: s.color }}
+                  />
+                  <span className="font-medium text-[var(--text-primary)] truncate">
+                    {s.label}
+                  </span>
+                  {s.axis === 'right' && (
+                    <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] shrink-0">
+                      (R)
+                    </span>
+                  )}
                 </button>
-              )}
-            </div>
-          );
-        })}
+                {m && (
+                  <button
+                    type="button"
+                    onClick={() => onSelectBiomarker(m)}
+                    className="px-1.5 py-1 text-[var(--text-muted)] hover:text-[var(--tone-sky)] border-l border-[var(--border-subtle)] transition-colors shrink-0"
+                    title={`Open detailed telemetry modal for ${s.biomarkerName}`}
+                  >
+                    ↗
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* SVG Canvas */}
       <div className="relative w-full">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto overflow-visible select-none cursor-crosshair touch-pan-y"
+          className="w-full h-[185px] sm:h-[204px] block overflow-visible select-none cursor-crosshair touch-pan-y"
           onMouseMove={(e) => resolveHoverIndex(e.clientX, e.currentTarget)}
           onTouchStart={(e) => {
             if (e.touches[0]) resolveHoverIndex(e.touches[0].clientX, e.currentTarget);
@@ -757,7 +823,7 @@ function SystemCardChart({
               />
               <span
                 className={`font-mono-tabular text-[10px] font-semibold uppercase tracking-wider truncate ${
-                  isInspecting ? 'text-sky-400' : 'text-[var(--text-muted)]'
+                  isInspecting ? 'text-[var(--tone-sky)]' : 'text-[var(--text-muted)]'
                 }`}
               >
                 {isInspecting
@@ -777,12 +843,12 @@ function SystemCardChart({
               const status = m ? getStatus(val, m) : 'unknown';
               const statusDotClass =
                 status === 'high'
-                  ? 'bg-rose-400'
+                  ? 'bg-rose-500'
                   : status === 'low'
-                  ? 'bg-amber-400'
+                  ? 'bg-amber-500'
                   : status === 'normal'
-                  ? 'bg-emerald-400'
-                  : 'bg-slate-600';
+                  ? 'bg-emerald-500'
+                  : 'bg-slate-500';
 
               return (
                 <div
@@ -824,7 +890,7 @@ export default function SystemsChartsGrid({
     <section aria-label="Physiological System Trajectories" className="my-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
         <div>
-          <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-sky-400">
+          <span className="text-[11px] font-mono-tabular uppercase tracking-widest text-[var(--tone-sky)] font-semibold">
             Multi-System Telemetry
           </span>
           <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] tracking-tight">
@@ -844,10 +910,11 @@ export default function SystemsChartsGrid({
             biomarkers={biomarkers}
             dates={dates}
             onSelectBiomarker={onSelectBiomarker}
+            wide={idx === 0 || idx === 2}
             className={
               idx === 0
                 ? 'md:col-span-2 xl:col-span-2'
-                : idx === 1
+                : idx === 2
                 ? 'xl:col-span-2'
                 : ''
             }
