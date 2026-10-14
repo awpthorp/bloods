@@ -127,6 +127,28 @@ export default function BiomarkerModal({
       ? 'Higher values are clinically favorable'
       : 'Optimal within reference interval';
 
+  const defaultIdx =
+    validPts.length > 0
+      ? validPts[validPts.length - 1].idx
+      : Math.max(dates.length - 1, 0);
+  const activeIdx = hoverIdx !== null ? hoverIdx : defaultIdx;
+  const isInspecting = hoverIdx !== null;
+  const activeVal = marker.values[activeIdx] ?? null;
+  const activeStatus = getStatus(activeVal, marker);
+  const activePos = getRangePosition(activeVal, marker);
+
+  const resolveHoverIndex = (clientX: number, svgEl: SVGSVGElement) => {
+    if (dates.length === 0) return;
+    const rect = svgEl.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const svgX = ((clientX - rect.left) / rect.width) * width;
+    const clampedX = Math.max(padLeft, Math.min(width - padRight, svgX));
+    const ratio = plotW > 0 ? (clampedX - padLeft) / plotW : 0;
+    const idx = Math.round(ratio * totalSlots);
+    const boundedIdx = Math.max(0, Math.min(dates.length - 1, idx));
+    setHoverIdx((prev) => (prev === boundedIdx ? prev : boundedIdx));
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
@@ -279,12 +301,12 @@ export default function BiomarkerModal({
 
           {/* Trajectory SVG Chart */}
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-[var(--text-secondary)]">
+            <div className="flex items-center justify-between mb-2 overflow-hidden">
+              <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
                 Longitudinal Trajectory (Gap-Spanned)
               </span>
               {(marker.min !== undefined || marker.max !== undefined) && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono-tabular">
+                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono-tabular shrink-0">
                   <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/20 border border-emerald-500/40" />
                   Ref Zone: {marker.refLabel} {marker.unit}
                 </span>
@@ -293,120 +315,201 @@ export default function BiomarkerModal({
 
             <svg
               viewBox={`0 0 ${width} ${height}`}
-              className="w-full h-auto overflow-visible select-none"
+              className="w-full h-auto overflow-visible select-none cursor-crosshair touch-pan-y"
+              onMouseMove={(e) => resolveHoverIndex(e.clientX, e.currentTarget)}
+              onTouchStart={(e) => {
+                if (e.touches[0]) resolveHoverIndex(e.touches[0].clientX, e.currentTarget);
+              }}
+              onTouchMove={(e) => {
+                if (e.touches[0]) resolveHoverIndex(e.touches[0].clientX, e.currentTarget);
+              }}
               onMouseLeave={() => setHoverIdx(null)}
             >
-              {/* Grid lines */}
-              {yTicks.map((tv, i) => {
-                const y = toY(tv);
-                return (
-                  <g key={i}>
-                    <line
-                      x1={padLeft}
-                      y1={y}
-                      x2={width - padRight}
-                      y2={y}
-                      stroke="var(--chart-grid)"
+              <g className="pointer-events-none">
+                {/* Grid lines */}
+                {yTicks.map((tv, i) => {
+                  const y = toY(tv);
+                  return (
+                    <g key={i}>
+                      <line
+                        x1={padLeft}
+                        y1={y}
+                        x2={width - padRight}
+                        y2={y}
+                        stroke="var(--chart-grid)"
+                        strokeWidth={1}
+                      />
+                      <text
+                        x={padLeft - 8}
+                        y={y + 3}
+                        textAnchor="end"
+                        className="fill-[var(--text-muted)] font-mono-tabular text-[10px]"
+                      >
+                        {tv >= 10 ? Math.round(tv) : tv.toFixed(2)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Shaded Reference Zone */}
+                {(marker.min !== undefined || marker.max !== undefined) &&
+                  bandY2 > bandY1 && (
+                    <rect
+                      x={padLeft}
+                      y={Math.max(padTop, bandY1)}
+                      width={plotW}
+                      height={Math.max(
+                        2,
+                        Math.min(padTop + plotH, bandY2) - Math.max(padTop, bandY1)
+                      )}
+                      fill="rgba(16, 185, 129, 0.08)"
+                      stroke="rgba(16, 185, 129, 0.25)"
+                      strokeDasharray="4 4"
                       strokeWidth={1}
                     />
-                    <text
-                      x={padLeft - 8}
-                      y={y + 3}
-                      textAnchor="end"
-                      className="fill-[var(--text-muted)] font-mono-tabular text-[10px]"
-                    >
-                      {tv >= 10 ? Math.round(tv) : tv.toFixed(2)}
-                    </text>
-                  </g>
-                );
-              })}
+                  )}
 
-              {/* Shaded Reference Zone */}
-              {(marker.min !== undefined || marker.max !== undefined) &&
-                bandY2 > bandY1 && (
-                  <rect
-                    x={padLeft}
-                    y={Math.max(padTop, bandY1)}
-                    width={plotW}
-                    height={Math.max(
-                      2,
-                      Math.min(padTop + plotH, bandY2) - Math.max(padTop, bandY1)
-                    )}
-                    fill="rgba(16, 185, 129, 0.08)"
-                    stroke="rgba(16, 185, 129, 0.25)"
-                    strokeDasharray="4 4"
+                {/* Hover vertical guide line */}
+                {hoverIdx !== null && (
+                  <line
+                    x1={toX(hoverIdx)}
+                    y1={padTop}
+                    x2={toX(hoverIdx)}
+                    y2={padTop + plotH}
+                    stroke="var(--text-secondary)"
                     strokeWidth={1}
+                    strokeDasharray="2 2"
+                    opacity={0.5}
                   />
                 )}
 
-              {/* Trajectory Curve */}
-              {coords.length > 1 && (
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke="#38bdf8"
-                  strokeWidth={2.6}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
+                {/* Trajectory Curve */}
+                {coords.length > 1 && (
+                  <path
+                    d={pathD}
+                    fill="none"
+                    stroke="#38bdf8"
+                    strokeWidth={2.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
 
-              {/* Data Points */}
-              {coords.map((pt) => {
-                const dotColor =
-                  pt.status === 'high'
-                    ? '#fb7185'
-                    : pt.status === 'low'
-                    ? '#fbbf24'
-                    : '#34d399';
-                const isHovered = hoverIdx === pt.idx;
+                {/* Data Points */}
+                {coords.map((pt) => {
+                  const dotColor =
+                    pt.status === 'high'
+                      ? '#fb7185'
+                      : pt.status === 'low'
+                      ? '#fbbf24'
+                      : '#34d399';
+                  const isHovered = activeIdx === pt.idx;
 
-                return (
-                  <g
-                    key={pt.idx}
-                    className="cursor-pointer"
-                    onMouseEnter={() => setHoverIdx(pt.idx)}
-                  >
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={isHovered ? 8 : 5}
-                      fill={dotColor}
-                      opacity={0.22}
-                    />
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={isHovered ? 5 : 3.8}
-                      fill={dotColor}
-                      stroke="var(--bg-surface)"
-                      strokeWidth={1.5}
-                    />
+                  return (
+                    <g key={pt.idx}>
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isHovered ? 8 : 5}
+                        fill={dotColor}
+                        opacity={0.22}
+                      />
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isHovered ? 5 : 3.8}
+                        fill={dotColor}
+                        stroke="var(--bg-surface)"
+                        strokeWidth={1.5}
+                      />
+                      <text
+                        x={pt.x}
+                        y={pt.y - 10}
+                        textAnchor="middle"
+                        className="fill-[var(--text-primary)] font-mono-tabular text-[10px] font-semibold"
+                      >
+                        {formatNumber(pt.v)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* X-axis dates */}
+                {dates.map((d, idx) => {
+                  const isHovered = hoverIdx === idx;
+                  return (
                     <text
-                      x={pt.x}
-                      y={pt.y - 10}
+                      key={d}
+                      x={toX(idx)}
+                      y={height - 10}
                       textAnchor="middle"
-                      className="fill-[var(--text-primary)] font-mono-tabular text-[10px] font-semibold"
+                      className={`font-mono-tabular text-[10.5px] transition-colors ${
+                        isHovered
+                          ? 'fill-sky-400 font-semibold'
+                          : 'fill-[var(--text-secondary)]'
+                      }`}
                     >
-                      {formatNumber(pt.v)}
+                      {d}
                     </text>
-                  </g>
-                );
-              })}
-
-              {/* X-axis dates */}
-              {dates.map((d, idx) => (
-                <text
-                  key={d}
-                  x={toX(idx)}
-                  y={height - 10}
-                  textAnchor="middle"
-                  className="fill-[var(--text-secondary)] font-mono-tabular text-[10.5px]"
-                >
-                  {d}
-                </text>
-              ))}
+                  );
+                })}
+              </g>
             </svg>
+
+            {/* Permanent Fixed-Height Telemetry Readout Strip */}
+            <div
+              className={`mt-2 h-11 rounded-xl border px-3 flex items-center justify-between gap-3 overflow-hidden transition-colors ${
+                isInspecting
+                  ? 'border-sky-500/40 bg-[var(--bg-elevated)]'
+                  : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60'
+              }`}
+            >
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                    isInspecting ? 'bg-sky-400' : 'bg-emerald-400/75'
+                  }`}
+                />
+                <span
+                  className={`font-mono-tabular text-[10px] font-semibold uppercase tracking-wider ${
+                    isInspecting ? 'text-sky-400' : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  {isInspecting ? 'INSPECTING' : 'LATEST'} · {dates[activeIdx] ?? '—'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 min-w-0 overflow-hidden font-mono-tabular text-xs whitespace-nowrap">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[var(--text-secondary)]">Reading:</span>
+                  <span className="font-semibold text-[var(--text-primary)]">
+                    {activeVal !== null && activeVal !== undefined
+                      ? `${formatNumber(activeVal)} ${marker.unit}`
+                      : 'Not tested'}
+                  </span>
+                  {activeVal !== null &&
+                    activeVal !== undefined &&
+                    activeStatus !== 'unknown' && (
+                      <span
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          activeStatus === 'high'
+                            ? 'bg-rose-400'
+                            : activeStatus === 'low'
+                            ? 'bg-amber-400'
+                            : 'bg-emerald-400'
+                        }`}
+                        title={`Status: ${activeStatus}`}
+                      />
+                    )}
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 text-[var(--text-secondary)]">
+                  <span>Range Pos:</span>
+                  <span className="text-[var(--text-primary)]">
+                    {activePos !== null ? `${Math.round(activePos)}%` : '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Data Audit Log Notes (if any historical values were corrected) */}
