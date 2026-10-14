@@ -410,10 +410,25 @@ function SystemCardChart({
     setHiddenSeries((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
+  const activeIdx = hoverIdx !== null ? hoverIdx : Math.max(dates.length - 1, 0);
+  const isInspecting = hoverIdx !== null;
+
+  const resolveHoverIndex = (clientX: number, svgEl: SVGSVGElement) => {
+    if (dates.length === 0) return;
+    const rect = svgEl.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const svgX = ((clientX - rect.left) / rect.width) * width;
+    const clampedX = Math.max(padLeft, Math.min(width - padRight, svgX));
+    const ratio = plotW > 0 ? (clampedX - padLeft) / plotW : 0;
+    const idx = Math.round(ratio * totalSlots);
+    const boundedIdx = Math.max(0, Math.min(dates.length - 1, idx));
+    setHoverIdx((prev) => (prev === boundedIdx ? prev : boundedIdx));
+  };
+
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 flex flex-col justify-between transition-all hover:border-[var(--border-strong)] relative">
+    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 flex flex-col justify-between transition-colors hover:border-[var(--border-strong)] relative">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="flex items-start justify-between gap-3 mb-3 overflow-hidden">
         <div>
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-sky-400 shrink-0" />
@@ -488,273 +503,301 @@ function SystemCardChart({
       <div className="relative w-full">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto overflow-visible select-none"
+          className="w-full h-auto overflow-visible select-none cursor-crosshair touch-pan-y"
+          onMouseMove={(e) => resolveHoverIndex(e.clientX, e.currentTarget)}
+          onTouchStart={(e) => {
+            if (e.touches[0]) resolveHoverIndex(e.touches[0].clientX, e.currentTarget);
+          }}
+          onTouchMove={(e) => {
+            if (e.touches[0]) resolveHoverIndex(e.touches[0].clientX, e.currentTarget);
+          }}
           onMouseLeave={() => setHoverIdx(null)}
         >
-          {/* Horizontal grid lines */}
-          {leftTicks.map((tickVal, idx) => {
-            const y = toY(tickVal, 'left');
-            return (
-              <g key={idx}>
-                <line
-                  x1={padLeft}
-                  y1={y}
-                  x2={width - padRight}
-                  y2={y}
-                  stroke="var(--chart-grid)"
-                  strokeWidth={1}
-                />
+          <g className="pointer-events-none">
+            {/* Horizontal grid lines */}
+            {leftTicks.map((tickVal, idx) => {
+              const y = toY(tickVal, 'left');
+              return (
+                <g key={idx}>
+                  <line
+                    x1={padLeft}
+                    y1={y}
+                    x2={width - padRight}
+                    y2={y}
+                    stroke="var(--chart-grid)"
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={padLeft - 6}
+                    y={y + 3}
+                    textAnchor="end"
+                    className="fill-[var(--text-muted)] font-mono-tabular text-[9.5px]"
+                  >
+                    {tickVal >= 10 ? Math.round(tickVal) : tickVal.toFixed(1)}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Right Axis Labels */}
+            {rightTicks.map((tickVal, idx) => {
+              const y = toY(tickVal, 'right');
+              return (
                 <text
-                  x={padLeft - 6}
+                  key={idx}
+                  x={width - padRight + 6}
                   y={y + 3}
-                  textAnchor="end"
+                  textAnchor="start"
                   className="fill-[var(--text-muted)] font-mono-tabular text-[9.5px]"
                 >
-                  {tickVal >= 10 ? Math.round(tickVal) : tickVal.toFixed(1)}
+                  {tickVal >= 10 ? Math.round(tickVal) : tickVal.toFixed(2)}
                 </text>
-              </g>
-            );
-          })}
-
-          {/* Right Axis Labels */}
-          {rightTicks.map((tickVal, idx) => {
-            const y = toY(tickVal, 'right');
-            return (
-              <text
-                key={idx}
-                x={width - padRight + 6}
-                y={y + 3}
-                textAnchor="start"
-                className="fill-[var(--text-muted)] font-mono-tabular text-[9.5px]"
-              >
-                {tickVal >= 10 ? Math.round(tickVal) : tickVal.toFixed(2)}
-              </text>
-            );
-          })}
-
-          {/* Shaded Reference Band */}
-          {chart.shadedBand && (() => {
-            const b = chart.shadedBand;
-            const y1 = Math.max(padTop, toY(b.max, b.axis));
-            const y2 = Math.min(padTop + plotH, toY(b.min, b.axis));
-            if (y2 <= y1) return null;
-            return (
-              <rect
-                x={padLeft}
-                y={y1}
-                width={plotW}
-                height={y2 - y1}
-                fill="rgba(16, 185, 129, 0.07)"
-                stroke="rgba(16, 185, 129, 0.18)"
-                strokeDasharray="3 3"
-                strokeWidth={0.75}
-              />
-            );
-          })()}
-
-          {/* Threshold dashed lines */}
-          {chart.thresholds?.map((th, idx) => {
-            const y = toY(th.value, th.axis);
-            if (y < padTop - 4 || y > padTop + plotH + 4) return null;
-            return (
-              <g key={idx}>
-                <line
-                  x1={padLeft}
-                  y1={y}
-                  x2={width - padRight}
-                  y2={y}
-                  stroke={th.color}
-                  strokeWidth={1}
-                  strokeDasharray="4 4"
-                  opacity={0.65}
-                />
-                <text
-                  x={padLeft + 4}
-                  y={y - 4}
-                  className="text-[9px] font-mono-tabular"
-                  fill={th.color}
-                  opacity={0.9}
-                >
-                  {th.label}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Series Lines & Points (with gap spanning!) */}
-          {activeSeries.map((s) => {
-            const m = markerMap.get(s.biomarkerName);
-            if (!m) return null;
-
-            const pts = m.values
-              .map((v, idx) =>
-                v !== null && v !== undefined && !Number.isNaN(v)
-                  ? {
-                      x: toX(idx),
-                      y: toY(v, s.axis),
-                      v,
-                      idx,
-                      status: getStatus(v, m),
-                    }
-                  : null
-              )
-              .filter(
-                (
-                  item
-                ): item is {
-                  x: number;
-                  y: number;
-                  v: number;
-                  idx: number;
-                  status: ReturnType<typeof getStatus>;
-                } => item !== null
               );
+            })}
 
-            if (pts.length === 0) return null;
+            {/* Shaded Reference Band */}
+            {chart.shadedBand && (() => {
+              const b = chart.shadedBand;
+              const y1 = Math.max(padTop, toY(b.max, b.axis));
+              const y2 = Math.min(padTop + plotH, toY(b.min, b.axis));
+              if (y2 <= y1) return null;
+              return (
+                <rect
+                  x={padLeft}
+                  y={y1}
+                  width={plotW}
+                  height={y2 - y1}
+                  fill="rgba(16, 185, 129, 0.07)"
+                  stroke="rgba(16, 185, 129, 0.18)"
+                  strokeDasharray="3 3"
+                  strokeWidth={0.75}
+                />
+              );
+            })()}
 
-            const pathD =
-              pts.length > 1
-                ? pts.reduce((acc, pt, i) => {
-                    if (i === 0) return `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
-                    const prev = pts[i - 1];
-                    const cpx1 = prev.x + (pt.x - prev.x) * 0.42;
-                    const cpx2 = prev.x + (pt.x - prev.x) * 0.58;
-                    return `${acc} C ${cpx1.toFixed(1)} ${prev.y.toFixed(1)}, ${cpx2.toFixed(1)} ${pt.y.toFixed(1)}, ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
-                  }, '')
-                : '';
-
-            return (
-              <g key={s.biomarkerName}>
-                {pts.length > 1 && (
-                  <path
-                    d={pathD}
-                    fill="none"
-                    stroke={s.color}
-                    strokeWidth={2.2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            {/* Threshold dashed lines */}
+            {chart.thresholds?.map((th, idx) => {
+              const y = toY(th.value, th.axis);
+              if (y < padTop - 4 || y > padTop + plotH + 4) return null;
+              return (
+                <g key={idx}>
+                  <line
+                    x1={padLeft}
+                    y1={y}
+                    x2={width - padRight}
+                    y2={y}
+                    stroke={th.color}
+                    strokeWidth={1}
+                    strokeDasharray="4 4"
+                    opacity={0.65}
                   />
-                )}
-                {pts.map((pt) => {
-                  const isHovered = hoverIdx === pt.idx;
-                  return (
-                    <g key={pt.idx}>
-                      {isHovered && (
+                  <text
+                    x={padLeft + 4}
+                    y={y - 4}
+                    className="text-[9px] font-mono-tabular"
+                    fill={th.color}
+                    opacity={0.9}
+                  >
+                    {th.label}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Hover vertical guide line */}
+            {hoverIdx !== null && (
+              <line
+                x1={toX(hoverIdx)}
+                y1={padTop}
+                x2={toX(hoverIdx)}
+                y2={padTop + plotH}
+                stroke="var(--text-secondary)"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+                opacity={0.5}
+              />
+            )}
+
+            {/* Series Lines & Points (with gap spanning!) */}
+            {activeSeries.map((s) => {
+              const m = markerMap.get(s.biomarkerName);
+              if (!m) return null;
+
+              const pts = m.values
+                .map((v, idx) =>
+                  v !== null && v !== undefined && !Number.isNaN(v)
+                    ? {
+                        x: toX(idx),
+                        y: toY(v, s.axis),
+                        v,
+                        idx,
+                        status: getStatus(v, m),
+                      }
+                    : null
+                )
+                .filter(
+                  (
+                    item
+                  ): item is {
+                    x: number;
+                    y: number;
+                    v: number;
+                    idx: number;
+                    status: ReturnType<typeof getStatus>;
+                  } => item !== null
+                );
+
+              if (pts.length === 0) return null;
+
+              const pathD =
+                pts.length > 1
+                  ? pts.reduce((acc, pt, i) => {
+                      if (i === 0) return `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+                      const prev = pts[i - 1];
+                      const cpx1 = prev.x + (pt.x - prev.x) * 0.42;
+                      const cpx2 = prev.x + (pt.x - prev.x) * 0.58;
+                      return `${acc} C ${cpx1.toFixed(1)} ${prev.y.toFixed(1)}, ${cpx2.toFixed(1)} ${pt.y.toFixed(1)}, ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+                    }, '')
+                  : '';
+
+              return (
+                <g key={s.biomarkerName}>
+                  {pts.length > 1 && (
+                    <path
+                      d={pathD}
+                      fill="none"
+                      stroke={s.color}
+                      strokeWidth={2.2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                  {pts.map((pt) => {
+                    const isHovered = activeIdx === pt.idx;
+                    return (
+                      <g key={pt.idx}>
+                        {isHovered && (
+                          <circle
+                            cx={pt.x}
+                            cy={pt.y}
+                            r={6.5}
+                            fill={s.color}
+                            opacity={0.25}
+                          />
+                        )}
                         <circle
                           cx={pt.x}
                           cy={pt.y}
-                          r={6.5}
+                          r={isHovered ? 4.2 : 3}
                           fill={s.color}
-                          opacity={0.25}
+                          stroke="var(--bg-surface)"
+                          strokeWidth={1.3}
                         />
-                      )}
-                      <circle
-                        cx={pt.x}
-                        cy={pt.y}
-                        r={isHovered ? 4.2 : 3}
-                        fill={s.color}
-                        stroke="var(--bg-surface)"
-                        strokeWidth={1.3}
-                      />
-                    </g>
-                  );
-                })}
-              </g>
-            );
-          })}
+                      </g>
+                    );
+                  })}
+                </g>
+              );
+            })}
 
-          {/* Hover vertical guide line */}
-          {hoverIdx !== null && (
-            <line
-              x1={toX(hoverIdx)}
-              y1={padTop}
-              x2={toX(hoverIdx)}
-              y2={padTop + plotH}
-              stroke="var(--text-secondary)"
-              strokeWidth={1}
-              strokeDasharray="2 2"
-              opacity={0.5}
-            />
-          )}
-
-          {/* X-axis Date Labels */}
-          {dates.map((d, idx) => {
-            const x = toX(idx);
-            const isHovered = hoverIdx === idx;
-            return (
-              <text
-                key={d}
-                x={x}
-                y={height - 10}
-                textAnchor="middle"
-                className={`text-[10px] font-mono-tabular transition-colors ${
-                  isHovered
-                    ? 'fill-sky-400 font-semibold'
-                    : 'fill-[var(--text-secondary)]'
-                }`}
-              >
-                {d}
-              </text>
-            );
-          })}
-
-          {/* Invisible hover columns for smooth scrubbing */}
-          {dates.map((d, idx) => {
-            const colW = plotW / Math.max(dates.length, 1);
-            const x = toX(idx) - colW / 2;
-            return (
-              <rect
-                key={d}
-                x={Math.max(padLeft - 10, x)}
-                y={padTop}
-                width={colW}
-                height={plotH + padBottom}
-                fill="transparent"
-                className="cursor-crosshair"
-                onMouseEnter={() => setHoverIdx(idx)}
-              />
-            );
-          })}
+            {/* X-axis Date Labels */}
+            {dates.map((d, idx) => {
+              const x = toX(idx);
+              const isHovered = hoverIdx === idx;
+              return (
+                <text
+                  key={d}
+                  x={x}
+                  y={height - 10}
+                  textAnchor="middle"
+                  className={`text-[10px] font-mono-tabular transition-colors ${
+                    isHovered
+                      ? 'fill-sky-400 font-semibold'
+                      : 'fill-[var(--text-secondary)]'
+                  }`}
+                >
+                  {d}
+                </text>
+              );
+            })}
+          </g>
         </svg>
 
-        {/* Floating Tooltip on Hover */}
-        {hoverIdx !== null && (
-          <div className="mt-2 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-3 py-2 text-xs shadow-lg flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono-tabular font-semibold text-sky-400">
-              {dates[hoverIdx]}
-            </span>
-            <div className="flex flex-wrap items-center gap-3">
-              {activeSeries.map((s) => {
-                const m = markerMap.get(s.biomarkerName);
-                const val = m?.values[hoverIdx] ?? null;
-                const status = m ? getStatus(val, m) : 'unknown';
-                return (
-                  <div key={s.biomarkerName} className="inline-flex items-center gap-1.5">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: s.color }}
-                    />
-                    <span className="text-[var(--text-secondary)]">{s.label}:</span>
-                    <span className="font-mono-tabular font-semibold text-[var(--text-primary)]">
-                      {formatNumber(val)}
-                    </span>
-                    {status !== 'normal' && status !== 'unknown' && (
-                      <span
-                        className={`text-[10px] uppercase px-1 rounded ${
-                          status === 'high'
-                            ? 'bg-rose-500/20 text-rose-400'
-                            : 'bg-amber-500/20 text-amber-400'
-                        }`}
-                      >
-                        {status}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+        {/* Permanent Fixed-Height Telemetry Readout Strip */}
+        <div
+          className={`mt-2 h-12 rounded-xl border px-3 py-1.5 flex flex-col justify-between overflow-hidden transition-colors ${
+            isInspecting
+              ? 'border-sky-500/40 bg-[var(--bg-elevated)]'
+              : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 leading-none overflow-hidden whitespace-nowrap">
+            <div className="inline-flex items-center gap-1.5 min-w-0">
+              <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  isInspecting ? 'bg-sky-400' : 'bg-emerald-400/75'
+                }`}
+              />
+              <span
+                className={`font-mono-tabular text-[10px] font-semibold uppercase tracking-wider truncate ${
+                  isInspecting ? 'text-sky-400' : 'text-[var(--text-muted)]'
+                }`}
+              >
+                {isInspecting
+                  ? `INSPECTING · ${dates[activeIdx] ?? '—'}`
+                  : `LATEST · ${dates[activeIdx] ?? '—'}`}
+              </span>
             </div>
+            <span className="font-mono-tabular text-[9.5px] text-[var(--text-muted)] shrink-0">
+              Panel {activeIdx + 1}/{dates.length}
+            </span>
           </div>
-        )}
+
+          <div
+            className="grid gap-2 items-center leading-none overflow-hidden whitespace-nowrap"
+            style={{
+              gridTemplateColumns: `repeat(${Math.max(activeSeries.length, 1)}, minmax(0, 1fr))`,
+            }}
+          >
+            {activeSeries.map((s) => {
+              const m = markerMap.get(s.biomarkerName);
+              const val = m?.values[activeIdx] ?? null;
+              const status = m ? getStatus(val, m) : 'unknown';
+              const statusDotClass =
+                status === 'high'
+                  ? 'bg-rose-400'
+                  : status === 'low'
+                  ? 'bg-amber-400'
+                  : status === 'normal'
+                  ? 'bg-emerald-400'
+                  : 'bg-slate-600';
+
+              return (
+                <div
+                  key={s.biomarkerName}
+                  className="flex items-center gap-1 min-w-0 overflow-hidden whitespace-nowrap"
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: s.color }}
+                  />
+                  <span className="text-[10px] text-[var(--text-secondary)] truncate">
+                    {s.label}:
+                  </span>
+                  <span className="font-mono-tabular text-[11px] font-semibold text-[var(--text-primary)] shrink-0">
+                    {formatNumber(val)}
+                  </span>
+                  {val !== null && val !== undefined && status !== 'unknown' && (
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotClass}`}
+                      title={`Status: ${status}`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
