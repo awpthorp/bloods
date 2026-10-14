@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-  Biomarker,
+  type Biomarker,
   CATEGORIES,
-  CategoryId,
-  DATA_AUDIT_LOG,
-  INITIAL_BIOMARKERS,
-  INITIAL_DATES,
+  type CategoryId,
+  type DataAuditEntry,
 } from '@/data/blood-tests';
 import {
   buildCsvContent,
@@ -37,6 +36,7 @@ import {
   Download,
   Eye,
   Filter,
+  Lock,
   Moon,
   Plus,
   RotateCcw,
@@ -55,6 +55,12 @@ interface CustomPanelEntry {
   valuesByBiomarker: Record<string, number | null>;
 }
 
+export interface DashboardClientProps {
+  initialBiomarkers: Biomarker[];
+  initialDates: string[];
+  dataAuditLog: DataAuditEntry[];
+}
+
 const KPI_HEADLINE_NAMES = [
   'eGFR (ml/min)',
   'Creatinine (mg/dL)',
@@ -64,8 +70,14 @@ const KPI_HEADLINE_NAMES = [
   'HbA1c (%)',
 ];
 
-export default function DashboardClient() {
+export default function DashboardClient({
+  initialBiomarkers,
+  initialDates,
+  dataAuditLog,
+}: DashboardClientProps) {
+  const router = useRouter();
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isLocking, setIsLocking] = useState(false);
   const [customPanels, setCustomPanels] = useState<CustomPanelEntry[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<
@@ -102,10 +114,22 @@ export default function DashboardClient() {
     document.documentElement.setAttribute('data-theme', next);
   };
 
+  const handleLockSession = async () => {
+    if (isLocking) return;
+    setIsLocking(true);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // proceed to login even if network call fails
+    }
+    router.replace('/login');
+    router.refresh();
+  };
+
   // Merge base dataset with any user-added panels
   const { dates, biomarkers } = useMemo(() => {
-    const mergedDates = [...INITIAL_DATES, ...customPanels.map((p) => p.date)];
-    const mergedMarkers: Biomarker[] = INITIAL_BIOMARKERS.map((m) => ({
+    const mergedDates = [...initialDates, ...customPanels.map((p) => p.date)];
+    const mergedMarkers: Biomarker[] = initialBiomarkers.map((m) => ({
       ...m,
       values: [
         ...m.values,
@@ -117,7 +141,7 @@ export default function DashboardClient() {
       ],
     }));
     return { dates: mergedDates, biomarkers: mergedMarkers };
-  }, [customPanels]);
+  }, [initialDates, initialBiomarkers, customPanels]);
 
   const markerByName = useMemo(() => {
     const map = new Map<string, Biomarker>();
@@ -441,7 +465,7 @@ export default function DashboardClient() {
               <ShieldCheck className="w-4 h-4 text-sky-400" />
               <span>Data Audit Log</span>
               <span className="font-mono-tabular px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 text-[10px]">
-                {DATA_AUDIT_LOG.length}
+                {dataAuditLog.length}
               </span>
             </button>
 
@@ -488,6 +512,17 @@ export default function DashboardClient() {
                 <Moon className="w-4 h-4 text-slate-700" />
               )}
             </button>
+
+            <button
+              type="button"
+              onClick={handleLockSession}
+              disabled={isLocking}
+              title="Lock telemetry session and require password"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-rose-400/50 hover:text-rose-300 transition-colors disabled:opacity-50"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>{isLocking ? 'Locking...' : 'Lock'}</span>
+            </button>
           </div>
         </div>
       </header>
@@ -503,7 +538,7 @@ export default function DashboardClient() {
                   Historical Data Integrity &amp; Unit Audit
                 </div>
                 <h2 className="text-base font-semibold text-[var(--text-primary)] mt-0.5">
-                  7 Verified Corrections Applied to Legacy Dataset
+                  {dataAuditLog.length} Verified Corrections Applied to Legacy Dataset
                 </h2>
               </div>
               <button
@@ -524,7 +559,7 @@ export default function DashboardClient() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {DATA_AUDIT_LOG.map((entry) => (
+              {dataAuditLog.map((entry) => (
                 <div
                   key={`${entry.biomarker}-${entry.date}`}
                   onClick={() => jumpToBiomarker(entry.biomarker)}
