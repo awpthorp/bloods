@@ -76,7 +76,7 @@ export default function DashboardClient({
   dataAuditLog,
 }: DashboardClientProps) {
   const router = useRouter();
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isLocking, setIsLocking] = useState(false);
   const [customPanels, setCustomPanels] = useState<CustomPanelEntry[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | 'all'>('all');

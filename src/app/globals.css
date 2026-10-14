@@ -1,31 +1,6 @@
 @import "tailwindcss";
 
 :root,
-[data-theme="dark"] {
-  --bg-canvas: #090c10;
-  --bg-surface: #0f141c;
-  --bg-elevated: #151c27;
-  --bg-subtle: #1b2432;
-  --bg-glass: rgba(15, 20, 28, 0.82);
-  --border-subtle: rgba(148, 163, 184, 0.12);
-  --border-strong: rgba(148, 163, 184, 0.24);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-primary: #38bdf8;
-  --accent-secondary: #818cf8;
-  --status-normal-bg: rgba(16, 185, 129, 0.12);
-  --status-normal-text: #34d399;
-  --status-normal-border: rgba(16, 185, 129, 0.28);
-  --status-high-bg: rgba(244, 63, 94, 0.14);
-  --status-high-text: #fb7185;
-  --status-high-border: rgba(244, 63, 94, 0.32);
-  --status-low-bg: rgba(245, 158, 11, 0.14);
-  --status-low-text: #fbbf24;
-  --status-low-border: rgba(245, 158, 11, 0.32);
-  --chart-grid: rgba(148, 163, 184, 0.1);
-}
-
 [data-theme="light"] {
   --bg-canvas: #f4f6f9;
   --bg-surface: #ffffff;
@@ -49,6 +24,31 @@
   --status-low-text: #b45309;
   --status-low-border: rgba(245, 158, 11, 0.3);
   --chart-grid: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #090c10;
+  --bg-surface: #0f141c;
+  --bg-elevated: #151c27;
+  --bg-subtle: #1b2432;
+  --bg-glass: rgba(15, 20, 28, 0.82);
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.24);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-primary: #38bdf8;
+  --accent-secondary: #818cf8;
+  --status-normal-bg: rgba(16, 185, 129, 0.12);
+  --status-normal-text: #34d399;
+  --status-normal-border: rgba(16, 185, 129, 0.28);
+  --status-high-bg: rgba(244, 63, 94, 0.14);
+  --status-high-text: #fb7185;
+  --status-high-border: rgba(244, 63, 94, 0.32);
+  --status-low-bg: rgba(245, 158, 11, 0.14);
+  --status-low-text: #fbbf24;
+  --status-low-border: rgba(245, 158, 11, 0.32);
+  --chart-grid: rgba(148, 163, 184, 0.1);
 }
 
 html {

@@ -40,11 +40,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       className={`${plusJakarta.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="antialiased selection:bg-sky-500/20 selection:text-sky-300">
+      <body className="antialiased selection:bg-sky-500/20 selection:text-sky-700">
         {children}
       </body>
     </html>
