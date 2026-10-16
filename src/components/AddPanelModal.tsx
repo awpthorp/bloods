@@ -74,7 +74,7 @@ export default function AddPanelModal({
   dates,
   onSavePanel,
 }: AddPanelModalProps) {
-  const [dateLabel, setDateLabel] = useState('Oct 2026');
+  const [dateLabel, setDateLabel] = useState('Apr 2027');
   const [activeCategory, setActiveCategory] = useState<CategoryId>('biochemistry');
   const [rawInputs, setRawInputs] = useState<Record<string, string>>({});
   const [copiedJson, setCopiedJson] = useState(false);
@@ -199,7 +199,7 @@ export default function AddPanelModal({
                 type="text"
                 value={dateLabel}
                 onChange={(e) => setDateLabel(e.target.value)}
-                placeholder="e.g. Oct 2026"
+                placeholder="e.g. Apr 2027"
                 required
                 className="w-full sm:w-auto rounded-lg border border-[var(--border-strong)] bg-[var(--bg-canvas)] px-3 py-1.5 text-base sm:text-sm font-mono-tabular text-[var(--text-primary)] focus:border-sky-400 focus:outline-none"
               />
