@@ -894,7 +894,7 @@ export default function SystemsChartsGrid({
             Multi-System Telemetry
           </span>
           <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] tracking-tight">
-            Physiological System Trajectories (2021–2025)
+            Physiological System Trajectories (2021–2026)
           </h2>
         </div>
         <p className="text-xs text-[var(--text-secondary)]">

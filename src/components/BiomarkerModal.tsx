@@ -21,6 +21,8 @@ import {
   Minus,
   Calculator,
   Info,
+  Dumbbell,
+  FileText,
 } from 'lucide-react';
 
 interface BiomarkerModalProps {
@@ -522,6 +524,39 @@ export default function BiomarkerModal({
             </div>
           </div>
 
+          {/* Pre-Draw Workout Protocol Notes (if any panel was affected by acute exercise) */}
+          {marker.workoutNotes && Object.keys(marker.workoutNotes).length > 0 && (
+            <div className="rounded-xl border border-[var(--tone-amber-border)] bg-[var(--tone-amber-bg)] p-3.5 sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--tone-amber)]">
+                  <Dumbbell className="w-4 h-4 shrink-0" />
+                  Pre-Draw Exercise Confounder Context (90m Post-Gym · Fasted)
+                </div>
+                <a
+                  href="/reports/2026-10-13-Comprehensive-Full-Body-Checkup.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-mono-tabular font-semibold text-[var(--tone-amber)] hover:underline"
+                >
+                  <FileText className="w-3.5 h-3.5 shrink-0" />
+                  Oct 2026 Lab PDF ↗
+                </a>
+              </div>
+              <ul className="space-y-1.5 text-xs text-[var(--text-primary)]">
+                {Object.entries(marker.workoutNotes).map(([date, note]) => (
+                  <li key={date} className="flex items-start gap-2">
+                    <span className="font-mono-tabular font-semibold text-[var(--tone-amber)] shrink-0">
+                      [{date}]:
+                    </span>
+                    <span className="text-[var(--text-secondary)] leading-relaxed">
+                      {note}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Data Audit Log Notes (if any historical values were corrected) */}
           {marker.auditNotes && Object.keys(marker.auditNotes).length > 0 && (
             <div className="rounded-xl border border-[var(--tone-sky-border)] bg-[var(--tone-sky-bg)] p-3.5 sm:p-4">
@@ -577,6 +612,7 @@ export default function BiomarkerModal({
                     }
                     const deltaPct = getPercentChange(val, prevVal);
                     const auditNote = marker.auditNotes?.[date];
+                    const workoutNote = marker.workoutNotes?.[date];
 
                     return (
                       <tr key={date} className="hover:bg-[var(--bg-elevated)]/60">
@@ -588,6 +624,15 @@ export default function BiomarkerModal({
                               title={auditNote}
                             >
                               Audited
+                            </span>
+                          )}
+                          {workoutNote && (
+                            <span
+                              className="ml-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] font-semibold"
+                              title={workoutNote}
+                            >
+                              <Dumbbell className="w-2.5 h-2.5 shrink-0" />
+                              90m Post-Gym
                             </span>
                           )}
                         </td>

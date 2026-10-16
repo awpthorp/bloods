@@ -7,6 +7,7 @@ import {
   CATEGORIES,
   type CategoryId,
   type DataAuditEntry,
+  OCT_2026_WORKOUT_NOTE,
 } from '@/data/blood-tests';
 import {
   buildCsvContent,
@@ -33,8 +34,13 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Download,
+  Dumbbell,
+  ExternalLink,
   Eye,
+  FileText,
   Filter,
   Lock,
   Moon,
@@ -87,6 +93,7 @@ export default function DashboardClient({
   const [displayMode, setDisplayMode] = useState<'absolute' | 'percent'>('absolute');
   const [onlyAudited, setOnlyAudited] = useState(false);
   const [showAuditDrawer, setShowAuditDrawer] = useState(false);
+  const [isWorkoutContextOpen, setIsWorkoutContextOpen] = useState(true);
   const [activeModalMarkerName, setActiveModalMarkerName] = useState<string | null>(
     null
   );
@@ -463,6 +470,18 @@ export default function DashboardClient({
 
           {/* Right Header Controls */}
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar sm:flex-wrap">
+            <a
+              href={OCT_2026_WORKOUT_NOTE.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open original Oct 2026 Unilabs / Valeo Wellbeing lab report PDF"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--tone-amber-border)] bg-[var(--tone-amber-bg)] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-[var(--tone-amber)] hover:opacity-90 transition-opacity"
+            >
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span>Oct 2026 PDF</span>
+              <ExternalLink className="w-3 h-3 opacity-80 hidden sm:inline shrink-0" />
+            </a>
+
             <button
               type="button"
               onClick={() => setShowAuditDrawer((prev) => !prev)}
@@ -585,11 +604,7 @@ export default function DashboardClient({
                   key={`${entry.biomarker}-${entry.date}`}
                   onClick={() => jumpToBiomarker(entry.biomarker)}
                   className={`cursor-pointer rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5 hover:border-[var(--tone-sky-border)] transition-all ${
-                    idx === 0
-                      ? 'md:col-span-2 xl:col-span-2'
-                      : idx === 1
-                      ? 'xl:col-span-2'
-                      : ''
+                    idx === 0 ? 'xl:col-span-2' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
@@ -617,6 +632,111 @@ export default function DashboardClient({
             </div>
           </section>
         )}
+
+        {/* Oct 2026 Pre-Draw Workout Protocol Context Banner */}
+        <section
+          aria-label="Oct 2026 Pre-Draw Workout Context"
+          style={{ boxShadow: 'var(--card-shadow)' }}
+          className="rounded-2xl border border-[var(--tone-amber-border)] bg-[var(--bg-surface)] p-4 sm:p-5 relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3.5">
+            <div className="space-y-1.5 min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono-tabular uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] font-semibold">
+                  <Dumbbell className="w-3.5 h-3.5 shrink-0" />
+                  Pre-Draw Exercise Confounder Note
+                </span>
+                <span className="text-[11px] font-mono-tabular px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                  {OCT_2026_WORKOUT_NOTE.collectedAt}
+                </span>
+                <span className="text-[11px] font-mono-tabular px-2.5 py-0.5 rounded-full bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                  {OCT_2026_WORKOUT_NOTE.protocolSummary}
+                </span>
+              </div>
+
+              <h2 className="text-sm sm:text-base font-bold text-[var(--text-primary)] tracking-tight">
+                {OCT_2026_WORKOUT_NOTE.headline}
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed max-w-5xl">
+                {OCT_2026_WORKOUT_NOTE.overview}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <a
+                href={OCT_2026_WORKOUT_NOTE.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--tone-amber-border)] bg-[var(--tone-amber-bg)] px-3 py-2 text-xs font-semibold text-[var(--tone-amber)] hover:opacity-90 transition-opacity"
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0" />
+                <span>View Oct 2026 Lab PDF</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setIsWorkoutContextOpen((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                <span>
+                  {isWorkoutContextOpen ? 'Hide' : 'Show'} Physiological Breakdown (4)
+                </span>
+                {isWorkoutContextOpen ? (
+                  <ChevronUp className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {isWorkoutContextOpen && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[var(--border-subtle)]">
+              {OCT_2026_WORKOUT_NOTE.confounderGroups.map((group) => (
+                <div
+                  key={group.id}
+                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/65 p-3.5 flex flex-col justify-between gap-2.5"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                      <Dumbbell className="w-3.5 h-3.5 text-[var(--tone-amber)] shrink-0" />
+                      <span>{group.title}</span>
+                    </div>
+                    <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                      {group.mechanism}
+                    </p>
+                    <p className="text-[11px] text-[var(--text-primary)] font-medium leading-relaxed">
+                      {group.clinicalTakeaway}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[var(--border-subtle)]">
+                    {group.affectedBiomarkers.map((b) => (
+                      <button
+                        key={b.name}
+                        type="button"
+                        onClick={() => jumpToBiomarker(b.name, true)}
+                        title={`Inspect ${b.name} trajectory and workout confounder note`}
+                        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-mono-tabular font-semibold border transition-colors ${
+                          b.status === 'high'
+                            ? 'bg-[var(--status-high-bg)] text-[var(--status-high-text)] border-[var(--status-high-border)] hover:opacity-90'
+                            : b.status === 'low'
+                            ? 'bg-[var(--status-low-bg)] text-[var(--status-low-text)] border-[var(--status-low-border)] hover:opacity-90'
+                            : 'bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--tone-amber-border)]'
+                        }`}
+                      >
+                        <span>{b.name.replace(/\s*\([^)]*\)/, '')}:</span>
+                        <span>{b.reading}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Dynamic Clinical Brief (3 Cards) */}
         <section
@@ -666,6 +786,15 @@ export default function DashboardClient({
                         >
                           {item.status}
                         </span>
+                        {item.marker.workoutNotes?.[item.latestDate] && (
+                          <span
+                            className="inline-flex items-center gap-0.5 text-[9.5px] font-mono-tabular uppercase px-1.5 py-0.2 rounded bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] font-semibold"
+                            title={item.marker.workoutNotes[item.latestDate]}
+                          >
+                            <Dumbbell className="w-2.5 h-2.5 shrink-0" />
+                            90m Post-Gym
+                          </span>
+                        )}
                       </div>
                       <p className="text-[11px] font-mono-tabular text-[var(--text-secondary)] mt-0.5">
                         {item.note}
@@ -822,8 +951,16 @@ export default function DashboardClient({
                 >
                   <div>
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[11px] sm:text-xs font-semibold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] truncate">
-                        {marker.name.replace(/\s*\([^)]*\)/, '')}
+                      <span className="text-[11px] sm:text-xs font-semibold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] truncate inline-flex items-center gap-1">
+                        <span className="truncate">
+                          {marker.name.replace(/\s*\([^)]*\)/, '')}
+                        </span>
+                        {latest.date && marker.workoutNotes?.[latest.date] && (
+                          <Dumbbell
+                            className="w-3 h-3 text-[var(--tone-amber)] shrink-0"
+                            aria-label="Affected by Oct 2026 pre-draw gym workout"
+                          />
+                        )}
                       </span>
                       <span
                         className={`text-[9.5px] sm:text-[10px] font-mono-tabular uppercase px-1.5 sm:px-2 py-0.5 rounded-full font-semibold shrink-0 ${
@@ -914,7 +1051,7 @@ export default function DashboardClient({
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-[var(--tone-sky)] shrink-0" />
-                <span>Audited Fixes Only (7)</span>
+                <span>Audited Fixes Only ({dataAuditLog.length})</span>
               </button>
 
               <div
@@ -1125,6 +1262,9 @@ export default function DashboardClient({
                 const hasAuditNotes =
                   marker.auditNotes &&
                   Object.keys(marker.auditNotes).length > 0;
+                const hasWorkoutNotes =
+                  marker.workoutNotes &&
+                  Object.keys(marker.workoutNotes).length > 0;
 
                 return (
                   <div
@@ -1143,6 +1283,12 @@ export default function DashboardClient({
                           {hasAuditNotes && (
                             <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30">
                               Audited
+                            </span>
+                          )}
+                          {hasWorkoutNotes && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)]">
+                              <Dumbbell className="w-2.5 h-2.5 shrink-0" />
+                              90m Post-Gym
                             </span>
                           )}
                         </div>
@@ -1251,11 +1397,11 @@ export default function DashboardClient({
                       <SparklineSvg marker={marker} width={114} height={36} />
                     </div>
 
-                    {/* 3. Historical timeline strip (zero horizontal scroll for 5 panels) */}
+                    {/* 3. Historical timeline strip (zero horizontal scroll for 6 panels) */}
                     <div
                       className={
-                        dates.length <= 5
-                          ? 'grid grid-cols-5 gap-1 pt-2 border-t border-[var(--border-subtle)]'
+                        dates.length <= 6
+                          ? 'grid grid-cols-6 gap-1 pt-2 border-t border-[var(--border-subtle)]'
                           : 'grid grid-flow-col auto-cols-fr gap-1 overflow-x-auto no-scrollbar pt-2 border-t border-[var(--border-subtle)]'
                       }
                     >
@@ -1263,6 +1409,7 @@ export default function DashboardClient({
                         const val = marker.values[idx];
                         const cellStatus = getStatus(val, marker);
                         const cellAudit = marker.auditNotes?.[d];
+                        const cellWorkout = marker.workoutNotes?.[d];
                         const shortDate = d.replace('20', '');
 
                         return (
@@ -1298,6 +1445,9 @@ export default function DashboardClient({
                                   {cellAudit && (
                                     <span className="w-1 h-1 rounded-full bg-sky-400 shrink-0" />
                                   )}
+                                  {cellWorkout && (
+                                    <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                  )}
                                 </>
                               )}
                             </div>
@@ -1322,7 +1472,18 @@ export default function DashboardClient({
                     </th>
                     {dates.map((d) => (
                       <th key={d} className="py-3.5 px-3 text-center min-w-[92px]">
-                        {d}
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span>{d}</span>
+                          {d === 'Oct 2026' && (
+                            <span
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[8.5px] font-mono-tabular uppercase bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] font-semibold"
+                              title="Drawn fasted 90 minutes after a resistance gym workout"
+                            >
+                              <Dumbbell className="w-2.5 h-2.5 shrink-0" />
+                              90m Post-Gym
+                            </span>
+                          )}
+                        </div>
                       </th>
                     ))}
                     <th className="py-3.5 px-3 text-center min-w-[125px]">
@@ -1387,6 +1548,9 @@ export default function DashboardClient({
                       const hasAuditNotes =
                         marker.auditNotes &&
                         Object.keys(marker.auditNotes).length > 0;
+                      const hasWorkoutNotes =
+                        marker.workoutNotes &&
+                        Object.keys(marker.workoutNotes).length > 0;
 
                       return (
                         <tr
@@ -1401,7 +1565,7 @@ export default function DashboardClient({
                           <td className="py-3 px-4 sticky left-0 z-10 bg-[var(--bg-surface)] group-hover:bg-[var(--bg-elevated)] transition-colors border-r border-[var(--border-subtle)]">
                             <div className="flex items-center justify-between gap-2">
                               <div>
-                                <div className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--tone-sky)] transition-colors flex items-center gap-1.5">
+                                <div className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--tone-sky)] transition-colors flex flex-wrap items-center gap-1.5">
                                   <span>{marker.name}</span>
                                   {hasAuditNotes && (
                                     <span
@@ -1411,6 +1575,17 @@ export default function DashboardClient({
                                         .join(' | ')}
                                     >
                                       Audited
+                                    </span>
+                                  )}
+                                  {hasWorkoutNotes && (
+                                    <span
+                                      className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-[var(--tone-amber-bg)] text-[var(--tone-amber)] border border-[var(--tone-amber-border)] font-semibold"
+                                      title={Object.entries(marker.workoutNotes!)
+                                        .map(([d, n]) => `${d}: ${n}`)
+                                        .join(' | ')}
+                                    >
+                                      <Dumbbell className="w-2.5 h-2.5 shrink-0" />
+                                      Post-Gym
                                     </span>
                                   )}
                                 </div>
@@ -1427,14 +1602,21 @@ export default function DashboardClient({
                             const val = marker.values[idx];
                             const cellStatus = getStatus(val, marker);
                             const cellAudit = marker.auditNotes?.[d];
+                            const cellWorkout = marker.workoutNotes?.[d];
+                            const tooltipParts = [
+                              cellAudit ? `Audit Fix (${d}): ${cellAudit}` : null,
+                              cellWorkout
+                                ? `Pre-Draw Workout Note (${d}): ${cellWorkout}`
+                                : null,
+                            ].filter(Boolean);
 
                             return (
                               <td
                                 key={d}
                                 className="py-3 px-3 text-center font-mono-tabular"
                                 title={
-                                  cellAudit
-                                    ? `Audit Fix (${d}): ${cellAudit}`
+                                  tooltipParts.length > 0
+                                    ? tooltipParts.join(' — ')
                                     : undefined
                                 }
                               >
@@ -1453,6 +1635,8 @@ export default function DashboardClient({
                                     } ${
                                       cellAudit
                                         ? 'ring-1 ring-sky-400/50'
+                                        : cellWorkout
+                                        ? 'ring-1 ring-amber-400/50'
                                         : ''
                                     }`}
                                   >
@@ -1463,6 +1647,9 @@ export default function DashboardClient({
                                     )}
                                     {cellAudit && (
                                       <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0" />
+                                    )}
+                                    {cellWorkout && (
+                                      <Dumbbell className="w-2.5 h-2.5 text-[var(--tone-amber)] shrink-0" />
                                     )}
                                   </span>
                                 )}
