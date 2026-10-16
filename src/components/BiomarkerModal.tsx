@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Biomarker, CATEGORIES } from '@/data/blood-tests';
+import { getBiomarkerScience } from '@/data/biomarker-science';
 import {
   evaluateChange,
   formatNumber,
@@ -23,7 +24,14 @@ import {
   Info,
   Dumbbell,
   FileText,
+  BookOpen,
+  Utensils,
+  ExternalLink,
+  Check,
+  Ban,
 } from 'lucide-react';
+
+type ModalView = 'both' | 'guide' | 'chart';
 
 interface BiomarkerModalProps {
   marker: Biomarker | null;
@@ -37,6 +45,11 @@ export default function BiomarkerModal({
   onClose,
 }: BiomarkerModalProps) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [view, setView] = useState<ModalView>('both');
+
+  useEffect(() => {
+    setView('both');
+  }, [marker?.name]);
 
   useEffect(() => {
     if (!marker) return;
@@ -48,6 +61,10 @@ export default function BiomarkerModal({
   }, [marker, onClose]);
 
   if (!marker) return null;
+
+  const science = getBiomarkerScience(marker.name);
+  const showChart = view === 'both' || view === 'chart';
+  const showGuide = view === 'both' || view === 'guide';
 
   const categoryMeta = CATEGORIES.find((c) => c.id === marker.category);
   const latest = getLatestReading(marker.values, dates);
@@ -161,7 +178,7 @@ export default function BiomarkerModal({
       aria-modal="true"
       aria-labelledby="biomarker-modal-title"
     >
-      <div className="w-full max-w-3xl rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden my-4 sm:my-8">
+      <div className="w-full max-w-4xl rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden my-4 sm:my-8">
         {/* Top bar */}
         <div className="flex items-start justify-between gap-3 sm:gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 sm:px-6 py-3.5 sm:py-4">
           <div className="min-w-0">
@@ -197,7 +214,41 @@ export default function BiomarkerModal({
           </button>
         </div>
 
+        <div
+          className="flex flex-wrap items-center gap-1.5 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 sm:px-6 py-2.5"
+          role="tablist"
+          aria-label="Biomarker modal view"
+        >
+          {(
+            [
+              { id: 'both', label: 'Chart + guide' },
+              { id: 'guide', label: 'Guide only' },
+              { id: 'chart', label: 'Chart only' },
+            ] as const
+          ).map((tab) => {
+            const selected = view === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setView(tab.id)}
+                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                  selected
+                    ? 'bg-sky-500 text-slate-950 shadow-sm'
+                    : 'border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[84vh] overflow-y-auto">
+          {showChart && (
+            <>
           {/* Summary KPI Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             {/* Latest Reading (properly resolves non-null reading + date!) */}
@@ -576,8 +627,167 @@ export default function BiomarkerModal({
               </ul>
             </div>
           )}
+            </>
+          )}
 
-          {/* Panel-by-Panel Breakdown Table */}
+          {showGuide && (
+            <section aria-labelledby="biomarker-science-title">
+              <div
+                id="biomarker-science-title"
+                className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]"
+              >
+                <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                What this is
+              </div>
+              {science ? (
+                <>
+                  <p className="mt-1.5 text-sm text-[var(--text-secondary)] leading-relaxed">
+                    {science.tagline}
+                  </p>
+                  <div className="mt-3 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          What it is
+                        </h3>
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                          {science.whatItIs}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          Why it matters
+                        </h3>
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                          {science.whyItMatters}
+                        </p>
+                        <p className="mt-2 text-sm font-medium text-[var(--text-primary)] leading-relaxed">
+                          Target: {science.optimalTarget}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          <Utensils className="w-3.5 h-3.5 shrink-0" />
+                          Food and habits that help
+                        </h3>
+                        <ul className="space-y-2">
+                          {science.nutritionHelps.map((item) => (
+                            <li
+                              key={item}
+                              className="flex items-start gap-2 text-sm text-[var(--text-secondary)] leading-relaxed"
+                            >
+                              <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[var(--tone-emerald)]" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          <Ban className="w-3.5 h-3.5 shrink-0" />
+                          What to limit
+                        </h3>
+                        <ul className="space-y-2">
+                          {science.nutritionAvoid.map((item) => (
+                            <li
+                              key={item}
+                              className="flex items-start gap-2 text-sm text-[var(--text-secondary)] leading-relaxed"
+                            >
+                              <Ban className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[var(--tone-rose)]" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          <Dumbbell className="w-3.5 h-3.5 shrink-0" />
+                          Training over months
+                        </h3>
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                          {science.exerciseEffects.chronic}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                          <Dumbbell className="w-3.5 h-3.5 shrink-0" />
+                          Workout before a blood draw
+                        </h3>
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                          {science.exerciseEffects.acutePreDraw}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                        Lifestyle and supplements
+                      </h3>
+                      <ul className="list-disc space-y-2 pl-4">
+                        {science.lifestyleAndSupplements.map((item) => (
+                          <li
+                            key={item}
+                            className="text-sm text-[var(--text-secondary)] leading-relaxed"
+                          >
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3.5 sm:p-4 min-w-0">
+                      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                        Papers
+                      </h3>
+                      <ul className="space-y-2.5">
+                        {science.citations.map((citation) => (
+                          <li key={`${citation.year}-${citation.title}`}>
+                            <a
+                              href={citation.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 hover:border-[var(--tone-sky-border)] transition-colors"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="text-[11px] font-mono-tabular uppercase tracking-wider text-[var(--tone-sky)]">
+                                    {citation.journal} · {citation.year}
+                                  </div>
+                                  <div className="mt-1 text-xs text-[var(--text-muted)]">
+                                    {citation.authors}
+                                  </div>
+                                  <div className="mt-1 text-sm font-medium text-[var(--text-primary)] leading-snug">
+                                    {citation.title}
+                                  </div>
+                                  <p className="mt-1.5 text-sm text-[var(--text-secondary)] leading-relaxed">
+                                    {citation.finding}
+                                  </p>
+                                </div>
+                                <ExternalLink className="w-3.5 h-3.5 shrink-0 text-[var(--text-muted)]" />
+                              </div>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="mt-1.5 text-sm text-[var(--text-secondary)]">
+                  No plain-language science guide is available for this biomarker yet.
+                </p>
+              )}
+            </section>
+          )}
+
+          {showChart && (
           <div>
             <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2.5">
               <Info className="w-3.5 h-3.5 shrink-0" />
@@ -669,6 +879,7 @@ export default function BiomarkerModal({
               </table>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

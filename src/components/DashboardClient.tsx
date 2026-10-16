@@ -33,6 +33,7 @@ import {
   AlertTriangle,
   ArrowDownRight,
   ArrowUpRight,
+  BookOpen,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -1037,6 +1038,10 @@ export default function DashboardClient({
                 Longitudinal Biomarker Ledger ({filteredBiomarkers.length} of{' '}
                 {biomarkers.length})
               </h2>
+              <p className="mt-1 max-w-3xl text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
+                Click a biomarker to open its chart and a plain-language science
+                guide covering what it is, food, exercise, and papers.
+              </p>
             </div>
 
             {/* Value Display Mode Toggle & Audited Filter */}
@@ -1280,6 +1285,9 @@ export default function DashboardClient({
                       <div className="min-w-0">
                         <div className="font-semibold text-sm text-[var(--text-primary)] flex flex-wrap items-center gap-1.5">
                           <span>{marker.name}</span>
+                          <span title="Science guide" className="inline-flex">
+                            <BookOpen className="w-3.5 h-3.5 shrink-0 text-[var(--tone-sky)]" />
+                          </span>
                           {hasAuditNotes && (
                             <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30">
                               Audited
@@ -1567,6 +1575,9 @@ export default function DashboardClient({
                               <div>
                                 <div className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--tone-sky)] transition-colors flex flex-wrap items-center gap-1.5">
                                   <span>{marker.name}</span>
+                                  <span title="Science guide" className="inline-flex">
+                                    <BookOpen className="w-3.5 h-3.5 shrink-0 text-[var(--tone-sky)]" />
+                                  </span>
                                   {hasAuditNotes && (
                                     <span
                                       className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono-tabular uppercase bg-[var(--tone-sky-bg)] text-[var(--tone-sky)] border border-[var(--tone-sky-border)] font-semibold"
